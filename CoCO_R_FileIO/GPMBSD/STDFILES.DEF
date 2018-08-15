@@ -1,0 +1,17 @@
+(* ========================================================= *)
+(* Preliminary library module for Gardens Point Modula       *)
+(* ========================================================= *)
+
+FOREIGN DEFINITION MODULE StdFiles;
+
+  IMPORT IMPLEMENTATION FROM "stdfiles.o & uxfiles.o";
+
+  FROM UxFiles IMPORT File;
+
+PROCEDURE Length( f : File) : CARDINAL;
+
+PROCEDURE StreamOfStdIn () : File;
+PROCEDURE StreamOfStdOut() : File;
+PROCEDURE StreamOfStdErr() : File;
+
+END StdFiles.

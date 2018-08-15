@@ -1,0 +1,26 @@
+INTERFACE DEFINITION MODULE LIBC;
+(* Interface to various routines in the C library *)
+(* FreeBSD GPM version - P.D. Terry, Rhodes University, 1995 *)
+
+  CONST
+    NCCS   = 19;
+    EOF    = 0 (* offsets in TermIO.CC array *);
+    ERASE  = 3;
+    KILL   = 5;
+    INTR   = 8;
+    ISIG   = 7 (* bits in TermIO.LFlag *);
+    ICANON = 8;
+    ECHO   = 3;
+
+  TYPE
+    TermIO = RECORD
+               IFlag, OFlag, CFlag, LFlag : BITSET;
+               CC : ARRAY [0 .. NCCS] OF CHAR;
+               CSpeed, OSpeed : INTEGER;
+             END;
+
+  PROCEDURE tcgetattr (fd : INTEGER; VAR rec : TermIO) : INTEGER;
+  PROCEDURE tcsetattr (fd : INTEGER; action : INTEGER; VAR rec : TermIO) : INTEGER;
+  PROCEDURE atexit (P : PROC) : INTEGER;
+
+END LIBC.
