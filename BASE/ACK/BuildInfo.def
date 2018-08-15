@@ -1,0 +1,10 @@
+(*!m2pim*) DEFINITION MODULE BuildInfo; (* auto-generated file *)
+
+CONST
+  Platform = "Linux 4.13.0-45-generic (x86_64)";
+  Dialect = "PIM Modula-2";
+  Compiler = "ACK Modula-2";
+  IOLibrary = "POSIX I/O library";
+  MemModel = "32/32 bits";
+
+END BuildInfo.

@@ -1,0 +1,48 @@
+(*!m2pim+ack*) (* Copyright (c) 2017 Modula-2 Software Foundation *)
+
+(*$Foreign language module *)
+
+DEFINITION MODULE unistd0; (* ACK version *)
+
+(* Low-level Modula-2 interface to POSIX unistd *)
+  
+
+FROM SYSTEM IMPORT ADDRESS (* void* *);
+
+
+(* type int *)
+
+TYPE INT = INTEGER;
+
+
+(* type size_t *)
+
+TYPE SizeT = CARDINAL;
+
+
+(* type ssize_t *)
+
+TYPE SSizeT = INTEGER;
+
+
+(* foreign declaration for access() *)
+
+PROCEDURE access ( path : ADDRESS; mode : INT ) : INT;
+
+
+(* foreign declaration for read() *)
+
+PROCEDURE read ( fildes : INT; buf : ADDRESS; nbyte : SizeT ) : SSizeT;
+
+
+(* foreign declaration for write() *)
+
+PROCEDURE write ( fildes : INT; buf : ADDRESS; nbyte : SizeT ) : SSizeT;
+
+
+(* foreign declaration for unlink() *)
+
+PROCEDURE unlink ( path : ADDRESS ) : INT;
+
+
+END unistd0.

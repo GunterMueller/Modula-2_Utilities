@@ -1,0 +1,37 @@
+(*!m2pim*) (* Copyright (c) 2017 Modula-2 Software Foundation *)
+
+DEFINITION MODULE ArgParser;
+
+FROM String IMPORT StringT; (* alias for String.String *)
+
+
+(* Status Type *)
+
+TYPE Status = (
+  Success,
+  HelpRequested,
+  VersionRequested,
+  LicenseRequested,
+  BuildInfoRequested,
+  ErrorsEncountered );
+
+
+(* ---------------------------------------------------------------------------
+ * function parseArgs()
+ * ---------------------------------------------------------------------------
+ * Parses command line arguments and initalises dictionary accordingly.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE parseArgs () : Status;
+
+
+(* ---------------------------------------------------------------------------
+ * function errorCount()
+ * ---------------------------------------------------------------------------
+ * Returns the count of errors encountered while parsing the arguments.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE errorCount () : CARDINAL;
+
+
+END ArgParser.

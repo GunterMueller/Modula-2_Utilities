@@ -1,0 +1,19 @@
+IMPLEMENTATION MODULE  TextWindows;
+
+FROM WM IMPORT Screen;
+
+EXPORT QUALIFIED Window, Done, Write, WriteString, WriteLn, WriteCard,
+		 WriteInt, ReadInt, Invert, OpenTextWindow,
+		CloseTextWindow;
+
+TYPE Window 	= Screen;
+
+VAR Done	: Boolena;
+PROCEDURE Write ( win: Window; ch: CHAR);
+PROCEDURE WriteString ( win: Window; s: ARRAY OF CHAR);
+PROCEDURE WriteLn ( win: Window);
+
+
+
+
+END TextWindows.

@@ -1,0 +1,197 @@
+(*!m2pim*) (* Copyright (c) 2017 Modula-2 Software Foundation. *)
+
+DEFINITION MODULE CharArray;
+
+(* Character Array Operations *)
+
+
+(* Introspection *)
+
+PROCEDURE length ( VAR (*CONST*) array : ARRAY OF CHAR ) : CARDINAL;
+(* Returns the number of characters in array. *)
+
+
+PROCEDURE words ( VAR (*CONST*) array : ARRAY OF CHAR ) : CARDINAL;
+(* Returns the number of words in array. *)
+
+
+PROCEDURE lengthOfWordAtIndex
+  ( VAR (*CONST*) array : ARRAY OF CHAR; n : CARDINAL ) : CARDINAL;
+(* Returns the number of characters in the n-th word in array. *)
+
+
+(* Trimming, Collapsing and Stripping *)
+
+PROCEDURE Trim ( VAR array : ARRAY OF CHAR );
+(* Removes leading and trailing whitespace from array. *)
+
+
+PROCEDURE Collapse ( VAR array : ARRAY OF CHAR );
+(* Replaces consecutive whitespace in array with single whitespace. *)
+
+
+PROCEDURE StripWhitespace ( VAR array : ARRAY OF CHAR );
+(* Removes all whitespace from array. *)
+
+
+PROCEDURE StripNonAlphaNum ( VAR array : ARRAY OF CHAR );
+(* Removes all non-alphanumeric characters, including whitespace from array. *)
+
+
+PROCEDURE ToWordSequence ( VAR array : ARRAY OF CHAR );
+(* Replaces any minus, plus, asterisk, solidus, single and double quote that
+   is enclosed by letters to whitespace, then trim-collapses whitespace, and
+   then removes non-aphanumeric characters except whitespace from array. *)
+
+
+(* Case Transformations *)
+
+PROCEDURE ToLower ( VAR array : ARRAY OF CHAR );
+(* Converts all uppercase characters in array to lowercase. *)
+
+
+PROCEDURE ToUpper ( VAR array : ARRAY OF CHAR );
+(* Converts all lowercase characters in array to uppercase. *)
+
+
+PROCEDURE ToCapital ( VAR array : ARRAY OF CHAR );
+(* Converts first letter in array to uppercase, all others to lowercase. *)
+
+
+PROCEDURE ToCamel ( VAR array : ARRAY OF CHAR );
+(* Converts word sequence in array to camelCase. *)
+
+
+PROCEDURE ToTitle ( VAR array : ARRAY OF CHAR );
+(* Converts word sequence in array to TitleCase. *)
+
+
+(* Copy Operations *)
+
+PROCEDURE canCopyArray
+  ( VAR (*CONST*) target : ARRAY OF CHAR; source : ARRAY OF CHAR ) : BOOLEAN;
+(* Returns TRUE if target can store the contents of source. *)
+
+
+PROCEDURE CopyArray
+  ( VAR target : ARRAY OF CHAR; source : ARRAY OF CHAR );
+(* Copies source to target. *)
+
+
+PROCEDURE canAppendArray
+  ( VAR (*CONST*) target : ARRAY OF CHAR; source : ARRAY OF CHAR ) : BOOLEAN;
+(* Returns TRUE if source can be appended to target. *)
+
+
+PROCEDURE AppendArray
+  ( VAR target : ARRAY OF CHAR; source : ARRAY OF CHAR );
+(* Appends source to target. *)
+
+
+PROCEDURE canCopyQuotedArray
+  ( VAR (*CONST*) target : ARRAY OF CHAR; source : ARRAY OF CHAR ) : BOOLEAN;
+(* Returns TRUE if target can store the quoted contents of source. *)
+
+
+PROCEDURE CopyQuotedArray
+  ( VAR target : ARRAY OF CHAR; source : ARRAY OF CHAR );
+(* Copies source to target, while enclosing contents in quotes. *)
+
+
+(* Insert and Replace Operations *)
+
+PROCEDURE canInsertChars
+  ( VAR (*CONST*) target : ARRAY OF CHAR; source : ARRAY OF CHAR ) : BOOLEAN;
+(* Returns TRUE if source can be inserted into target. *)
+
+
+PROCEDURE InsertCharsAtIndex
+  ( VAR target : ARRAY OF CHAR; source : ARRAY OF CHAR; index : CARDINAL );
+(* Inserts source into target starting at index. *)
+
+
+PROCEDURE canReplaceCharsAtIndex
+  ( VAR (*CONST*) target : ARRAY OF CHAR;
+    source : ARRAY OF CHAR; index : CARDINAL ) : BOOLEAN;
+(* Returns TRUE if index+length(source) does not exceed length of target. *)
+
+
+PROCEDURE ReplaceCharsAtIndex
+  ( VAR target : ARRAY OF CHAR; source : ARRAY OF CHAR; index : CARDINAL );
+(* Replaces slice target[index..index+length(source) with source. *)
+
+
+(* Slice Operations *)
+
+PROCEDURE canCopySlice
+  ( VAR (*CONST*) target : ARRAY OF CHAR; start, end : CARDINAL ) : BOOLEAN;
+(* Returns TRUE if target can store (end-start+1) characters. *)
+
+
+PROCEDURE CopySlice
+  ( VAR target : ARRAY OF CHAR;
+    source : ARRAY OF CHAR; start, end : CARDINAL );
+(* Copies slice source[start..end] to target. *)
+
+
+PROCEDURE canAppendSlice
+  ( VAR (*CONST*) target : ARRAY OF CHAR; start, end : CARDINAL ) : BOOLEAN;
+(* Returns TRUE if target can store (end-start+1) additional characters. *)
+
+
+PROCEDURE AppendSlice
+  ( VAR target : ARRAY OF CHAR;
+    source : ARRAY OF CHAR; start, end : CARDINAL );
+(* Appends slice source[start..end] to target. *)
+
+
+PROCEDURE RemoveSlice ( VAR array : ARRAY OF CHAR; start, end : CARDINAL );
+(* Removes slice source[start..end] from array. *)
+
+
+(* Word Operations *)
+
+PROCEDURE canCopyWordAtIndex
+  ( VAR (*CONST*) target : ARRAY OF CHAR;
+    source: ARRAY OF CHAR; n : CARDINAL ) : BOOLEAN;
+(* Returns TRUE if target can store the n-th word of source. *)
+
+
+PROCEDURE CopyWordAtIndex
+  ( VAR target : ARRAY OF CHAR; source : ARRAY OF CHAR; n : CARDINAL );
+(* Copies the n-th word in source array to target array. *)
+
+
+PROCEDURE canAppendWordAtIndex
+  ( VAR (*CONST*) target : ARRAY OF CHAR;
+    source : ARRAY OF CHAR; n : CARDINAL ) : BOOLEAN;
+(* Returns TRUE if the n-th word of source can be appended to target. *)
+
+
+PROCEDURE AppendWordAtIndex
+  ( VAR target : ARRAY OF CHAR; source : ARRAY OF CHAR; n : CARDINAL );
+(* Appends the n-th word in source array to target array. *)
+
+
+PROCEDURE RemoveWordAtIndex ( VAR array : ARRAY OF CHAR; n : CARDINAL );
+(* Removes the n-th word in array from array. *)
+
+
+(* Relational Operations *)
+
+PROCEDURE matches
+  ( VAR (*CONST*) array1, array2 : ARRAY OF CHAR ) : BOOLEAN;
+(* Returns TRUE if the content of array1 matches that of array2. *)
+
+
+PROCEDURE collatesBefore
+  ( VAR (*CONST*) array1, array2 : ARRAY OF CHAR ) : BOOLEAN;
+(* Returns TRUE if array1 comes before array2 in ASCII collation order. *)
+
+
+PROCEDURE collatesBeforeOrMatches
+  ( VAR (*CONST*) array1, array2 : ARRAY OF CHAR ) : BOOLEAN;
+(* Returns TRUE if array1 comes before array2 in ASCII collation order. *)
+
+
+END CharArray.

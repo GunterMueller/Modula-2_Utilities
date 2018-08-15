@@ -1,0 +1,111 @@
+(*!m2pim*) (* Copyright (c) 2017 Modula-2 Software Foundation *)
+
+DEFINITION MODULE ArgLexer;
+
+FROM String IMPORT StringT; (* alias for String.String *)
+
+
+(* ---------------------------------------------------------------------------
+ * Type Token
+ * ---------------------------------------------------------------------------
+ * Enumerated token values representing command line arguments.
+ * ------------------------------------------------------------------------ *)
+
+TYPE Token = (
+  
+  (* invalid argument *)
+  
+  Invalid,
+  
+  (* information options *)
+  
+  Help,                 (* --help, -h *)
+  Version,              (* --version, -V *)
+  License,              (* --license *)
+  BuildInfo,            (* --build-info *)
+  
+  (* expansion options *)
+  
+  Outfile,              (* --outfile *)
+  Dict,                 (* --dict *)
+  TabWidth,             (* --tabwidth *)
+  Newline,              (* --newline *)
+  
+  (* parameters *)
+
+  FileOrPath,           (* filename or pathname *)
+  Ident,                (* identifier *)
+  Value,                (* quoted value *)
+  Number,               (* decimal value *)
+
+  (* punctuation *)
+  
+  Equals,               (* = *)
+
+  (* diagnostic options *)
+
+  Verbose,              (* --verbose, -v *)
+  ShowSettings,         (* --show-settings *)
+  
+  (* end of input sentinel *)
+  
+  EndOfInput);
+
+
+(* ---------------------------------------------------------------------------
+ * function nextToken()
+ * ---------------------------------------------------------------------------
+ * Reads and consumes the next commmand line argument and returns its token.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE nextToken () : Token;
+
+
+(* ---------------------------------------------------------------------------
+ * function lastArg()
+ * ---------------------------------------------------------------------------
+ * Returns the argument string of the last consumed argument, or NIL if the
+ * token returned by a prior call to nextToken() was Equals or EndOfInput,
+ * or if nextToken() has not been called before.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE lastArg () : StringT;
+
+
+(* ---------------------------------------------------------------------------
+ * function isInfoRequest(token)
+ * ---------------------------------------------------------------------------
+ * Returns TRUE if token represents an information request, else FALSE.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE isInfoRequest ( token : Token ) : BOOLEAN;
+
+
+(* ---------------------------------------------------------------------------
+ * function isExpansionRequest(token)
+ * ---------------------------------------------------------------------------
+ * Returns TRUE if token represents a compilation request, else FALSE.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE isExpansionOption ( token : Token ) : BOOLEAN;
+
+
+(* ---------------------------------------------------------------------------
+ * function isParameter(token)
+ * ---------------------------------------------------------------------------
+ * Returns TRUE if token represents an option parameter, else FALSE.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE isParameter ( token : Token ) : BOOLEAN;
+
+
+(* ---------------------------------------------------------------------------
+ * function isDiagnosticOption(token)
+ * ---------------------------------------------------------------------------
+ * Returns TRUE if token represents a diagnostic option, else FALSE.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE isDiagnosticOption ( token : Token ) : BOOLEAN;
+
+
+END ArgLexer.

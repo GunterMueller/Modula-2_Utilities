@@ -1,0 +1,71 @@
+(*!m2pim*) (* Copyright (c) 2017 Modula-2 Software Foundation. *)
+
+DEFINITION MODULE Hash;
+
+(* General Purpose Hash Function *)
+
+
+TYPE Key; (* OPAQUE *)
+
+
+CONST MaxBits = 32; (* upper limit for hash values *)
+
+
+(* ---------------------------------------------------------------------------
+ * function Hash.initialValue()
+ * ---------------------------------------------------------------------------
+ * Returns the initial hash value for incremental hash calculation.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE initialValue () : Key;
+
+
+(* ---------------------------------------------------------------------------
+ * function Hash.valueForNextChar(hash, ch)
+ * ---------------------------------------------------------------------------
+ * Returns the next incremental value for incremental hash calculation.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE valueForNextChar ( hash : Key; ch : CHAR ) : Key;
+
+
+(* ---------------------------------------------------------------------------
+ * function Hash.finalValue( hash )
+ * ---------------------------------------------------------------------------
+ * Returns the final hash value for incremental hash calculation.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE finalValue ( hash : Key ) : Key;
+
+
+(* ---------------------------------------------------------------------------
+ * function Hash.valueForArray( array )
+ * ---------------------------------------------------------------------------
+ * Returns the hash value for the given character array.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE valueForArray ( VAR (*CONST*) array : ARRAY OF CHAR ) : Key;
+
+
+(* ---------------------------------------------------------------------------
+ * function Hash.valueForArraySlice( array, start, end )
+ * ---------------------------------------------------------------------------
+ * Returns the hash value for the given character array slice.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE valueForArraySlice
+  ( VAR (*CONST*) array : ARRAY OF CHAR; start, end : CARDINAL ) : Key;
+
+
+(* ---------------------------------------------------------------------------
+ * function Hash.mod( hash, n )
+ * ---------------------------------------------------------------------------
+ * Returns the CARDINAL value of hash MOD n for n IN [1..MAX(CARDINAL)].
+ * ------------------------------------------------------------------------ *)
+
+TYPE NatCard = CARDINAL [1..MAX(CARDINAL)];
+
+PROCEDURE mod ( hash : Key; n : NatCard ) : CARDINAL;
+
+
+END Hash.
