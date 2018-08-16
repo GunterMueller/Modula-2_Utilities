@@ -1,0 +1,64 @@
+DEFINITION MODULE Xglobal;
+
+ FROM SYSTEM IMPORT BYTE, ADDRESS (*, BITSET*);
+
+(*
+ * Basic datatypes for Xlib.def and Xutil.def.
+ * These should work with Mocka and mtc.
+ * You may want to change them to suit your compiler;
+ * Look at the next comment if your compiler has 16bit wide INTEGER and 8bit
+ * wide SHORTINT. Looke at the second next comment for a general definition.
+ * The types must have the sizes given on the right.
+ *)
+
+CONST
+ Many = 255;
+
+TYPE
+ CARD8 = CHAR;		(* unsigned short,	8bit *)
+ INT16 = SHORTINT;	(* short [int],		16bit *)
+ CARD16 = SHORTCARD;	(* unsigned short [int]	16bit *)
+ INT = INTEGER;		(* int 			usually 32bit *)
+ CARD = CARDINAL;	(* unsigned int         usually 32bit *)
+ INT32 = LONGINT;	(* long [int]		32bit *)
+ CARD32 = LONGCARD;	(* unsigned long [int]	32bit *)
+ SET32 = BITSET;	(* unsigned long (with 'x<<y'-like consts) 32bit *)
+
+(* Some compiler may need these declarations instead of the above:
+TYPE
+ CARD8 = SHORTCARD;	(* unsigned short,	8bit *)
+ INT16 = INTEGER;	(* short [int],		16bit *)
+ CARD16 = CARDINAL;	(* unsigned short [int]	16bit *)
+ INT = LONGINT;		(* int 			usually 32bit *)
+ CARD = LONGCARD;	(* unsigned int         usually 32bit *)
+ INT32 = LONGINT;	(* long [int]		32bit *)
+ CARD32 = LONGCARD;	(* unsigned long [int]	32bit *)
+ SET32 = LONGSET;	(* unsigned long 	32bit *)
+*)
+
+(* Here are the general definition. Do not use them because they may
+ * create incompatibilities with the standard types or may not be
+ * translated to the correct size by your compiler.
+TYPE
+ CARD8 = [0..255];			(* unsigned short,	8bit *)
+ INT16 = [-32768..32767];		(* short [int],		16bit *)
+ CARD16 = [0..65535];			(* unsigned short [int]	16bit *)
+ INT = [-2147483648..2147483647];	(* int 			usually 32bit *)
+ CARD = [0..4294967295];		(* unsigned int         usually 32bit *)
+ INT32 = [-2147483648..2147483647];	(* long [int]		32bit *)
+ CARD32 = [0..4294967295];		(* unsigned long [int]	32bit *)
+ SET32 = SET OF [0..31];		(* unsigned long 	32bit *)
+*)
+
+ BOOL = INT;		(* Really ! *)
+
+ CHARPtr = POINTER TO ARRAY[0..Many] OF CHAR;
+ INTPtr = POINTER TO ARRAY[0..Many] OF INT;
+ CARD32Ptr = POINTER TO ARRAY[0..Many] OF CARD32;
+
+ CHARPtrPtr = POINTER TO ARRAY[0..Many] OF CHARPtr;
+
+ StringPtr = CHARPtr;
+ StringPtrPtr = CHARPtrPtr;
+
+END Xglobal.

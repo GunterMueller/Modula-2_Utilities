@@ -1,0 +1,1572 @@
+(* $TOG: keysymdef.h /main/28 1998/05/22 16:18:01 kaleb $ *)
+
+(***********************************************************
+Copyright 1987, 1994, 1998  The Open Group
+
+All Rights Reserved.
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE OPEN GROUP BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+Except as contained in this notice, the name of The Open Group shall
+not be used in advertising or otherwise to promote the sale, use or
+other dealings in this Software without prior written authorization
+from The Open Group.
+
+
+Copyright 1987 by Digital Equipment Corporation, Maynard, Massachusetts
+
+                        All Rights Reserved
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in
+supporting documentation, and that the name of Digital not be
+used in advertising or publicity pertaining to distribution of the
+software without specific, written prior permission.
+
+DIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL
+DIGITAL BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR
+ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+SOFTWARE.
+
+******************************************************************)
+(*
+ *	Aug-1999:
+ *	Translated to Modula-2 by Nicky.
+ *      Use it at your own risks !
+ *)
+
+DEFINITION MODULE KeySyms;
+
+(* Note:
+ * Underscores (_) have been removed, but unlike in Xlib, the
+ * char following it has not been converted to uppercase
+ * to avoid name conflicts.
+ *)
+
+CONST
+
+XKVoidSymbol		= 0FFFFFFH;	(* void symbol *)
+
+(*
+ * TTY Functions, cleverly chosen to map to ascii, for convenience of
+ * programming, but could have been arbitrary (at the cost of lookup
+ * tables in client code.
+ *)
+
+XKBackSpace		= 0FF08H;	(* back space, back char *)
+XKTab			= 0FF09H;
+XKLinefeed		= 0FF0AH;	(* Linefeed, LF *)
+XKClear			= 0FF0BH;
+XKReturn		= 0FF0DH;	(* Return, enter *)
+XKPause			= 0FF13H;	(* Pause, hold *)
+XKScrollLock		= 0FF14H;
+XKSysReq		= 0FF15H;
+XKEscape		= 0FF1BH;
+XKDelete		= 0FFFFH;	(* Delete, rubout *)
+
+
+
+(* International & multi-key character composition *)
+
+XKMultikey		= 0FF20H;  (* Multi-key character compose *)
+XKCodeinput		= 0FF37H;
+XKSingleCandidate	= 0FF3CH;
+XKMultipleCandidate	= 0FF3DH;
+XKPreviousCandidate	= 0FF3EH;
+
+(* Japanese keyboard support *)
+
+XKKanji			= 0FF21H;	(* Kanji, Kanji convert *)
+XKMuhenkan		= 0FF22H;  (* Cancel Conversion *)
+XKHenkanMode		= 0FF23H;  (* Start/Stop Conversion *)
+XKHenkan		= 0FF23H;  (* Alias for HenkanMode *)
+XKRomaji		= 0FF24H;  (* to Romaji *)
+XKHiragana		= 0FF25H;  (* to Hiragana *)
+XKKatakana		= 0FF26H;  (* to Katakana *)
+XKHiraganaKatakana	= 0FF27H;  (* Hiragana/Katakana toggle *)
+XKZenkaku		= 0FF28H;  (* to Zenkaku *)
+XKHankaku		= 0FF29H;  (* to Hankaku *)
+XKZenkakuHankaku	= 0FF2AH;  (* Zenkaku/Hankaku toggle *)
+XKTouroku		= 0FF2BH;  (* Add to Dictionary *)
+XKMassyo		= 0FF2CH;  (* Delete from Dictionary *)
+XKKanaLock		= 0FF2DH;  (* Kana Lock *)
+XKKanaShift		= 0FF2EH;  (* Kana Shift *)
+XKEisuShift		= 0FF2FH;  (* Alphanumeric Shift *)
+XKEisutoggle		= 0FF30H;  (* Alphanumeric toggle *)
+XKKanjiBangou		= 0FF37H;  (* Codeinput *)
+XKZenKoho		= 0FF3DH;	(* Multiple/All Candidate(s) *)
+XKMaeKoho		= 0FF3EH;	(* Previous Candidate *)
+
+(* 0xFF31 thru 0xFF3F are under XKKOREAN *)
+
+(* Cursor control & motion *)
+
+XKHome			= 0FF50H;
+XKLeft			= 0FF51H;	(* Move left, left arrow *)
+XKUp			= 0FF52H;	(* Move up, up arrow *)
+XKRight			= 0FF53H;	(* Move right, right arrow *)
+XKDown			= 0FF54H;	(* Move down, down arrow *)
+XKPrior			= 0FF55H;	(* Prior, previous *)
+XKPageUp		= 0FF55H;
+XKNext			= 0FF56H;	(* Next *)
+XKPageDown		= 0FF56H;
+XKEnd			= 0FF57H;	(* EOL *)
+XKBegin			= 0FF58H;	(* BOL *)
+
+
+(* Misc Functions *)
+
+XKSelect		= 0FF60H;	(* Select, mark *)
+XKPrint			= 0FF61H;
+XKExecute		= 0FF62H;	(* Execute, run, do *)
+XKInsert		= 0FF63H;	(* Insert, insert here *)
+XKUndo			= 0FF65H;	(* Undo, oops *)
+XKRedo			= 0FF66H;	(* redo, again *)
+XKMenu			= 0FF67H;
+XKFind			= 0FF68H;	(* Find, search *)
+XKCancel		= 0FF69H;	(* Cancel, stop, abort, exit *)
+XKHelp			= 0FF6AH;	(* Help *)
+XKBreak			= 0FF6BH;
+XKModeswitch		= 0FF7EH;	(* Character set switch *)
+XKscriptswitch       	= 0FF7EH;  (* Alias for modeswitch *)
+XKNumLock		= 0FF7FH;
+
+(* Keypad Functions, keypad numbers cleverly chosen to map to ascii *)
+
+XKKPSpace		= 0FF80H;	(* space *)
+XKKPTab			= 0FF89H;
+XKKPEnter		= 0FF8DH;	(* enter *)
+XKKPF1			= 0FF91H;	(* PF1, KPA, ... *)
+XKKPF2			= 0FF92H;
+XKKPF3			= 0FF93H;
+XKKPF4			= 0FF94H;
+XKKPHome		= 0FF95H;
+XKKPLeft		= 0FF96H;
+XKKPUp			= 0FF97H;
+XKKPRight		= 0FF98H;
+XKKPDown		= 0FF99H;
+XKKPPrior		= 0FF9AH;
+XKKPPageUp		= 0FF9AH;
+XKKPNext		= 0FF9BH;
+XKKPPageDown		= 0FF9BH;
+XKKPEnd			= 0FF9CH;
+XKKPBegin		= 0FF9DH;
+XKKPInsert		= 0FF9EH;
+XKKPDelete		= 0FF9FH;
+XKKPEqual		= 0FFBDH;	(* equals *)
+XKKPMultiply		= 0FFAAH;
+XKKPAdd			= 0FFABH;
+XKKPSeparator		= 0FFACH;	(* separator, often comma *)
+XKKPSubtract		= 0FFADH;
+XKKPDecimal		= 0FFAEH;
+XKKPDivide		= 0FFAFH;
+
+XKKP0			= 0FFB0H;
+XKKP1			= 0FFB1H;
+XKKP2			= 0FFB2H;
+XKKP3			= 0FFB3H;
+XKKP4			= 0FFB4H;
+XKKP5			= 0FFB5H;
+XKKP6			= 0FFB6H;
+XKKP7			= 0FFB7H;
+XKKP8			= 0FFB8H;
+XKKP9			= 0FFB9H;
+
+
+
+(*
+ * Auxilliary Functions; note the duplicate definitions for left and right
+ * function keys;  Sun keyboards and a few other manufactures have such
+ * function key groups on the left and/or right sides of the keyboard.
+ * We've not found a keyboard with more than 35 function keys total.
+ *)
+
+XKF1			= 0FFBEH;
+XKF2			= 0FFBFH;
+XKF3			= 0FFC0H;
+XKF4			= 0FFC1H;
+XKF5			= 0FFC2H;
+XKF6			= 0FFC3H;
+XKF7			= 0FFC4H;
+XKF8			= 0FFC5H;
+XKF9			= 0FFC6H;
+XKF10			= 0FFC7H;
+XKF11			= 0FFC8H;
+XKL1			= 0FFC8H;
+XKF12			= 0FFC9H;
+XKL2			= 0FFC9H;
+XKF13			= 0FFCAH;
+XKL3			= 0FFCAH;
+XKF14			= 0FFCBH;
+XKL4			= 0FFCBH;
+XKF15			= 0FFCCH;
+XKL5			= 0FFCCH;
+XKF16			= 0FFCDH;
+XKL6			= 0FFCDH;
+XKF17			= 0FFCEH;
+XKL7			= 0FFCEH;
+XKF18			= 0FFCFH;
+XKL8			= 0FFCFH;
+XKF19			= 0FFD0H;
+XKL9			= 0FFD0H;
+XKF20			= 0FFD1H;
+XKL10			= 0FFD1H;
+XKF21			= 0FFD2H;
+XKR1			= 0FFD2H;
+XKF22			= 0FFD3H;
+XKR2			= 0FFD3H;
+XKF23			= 0FFD4H;
+XKR3			= 0FFD4H;
+XKF24			= 0FFD5H;
+XKR4			= 0FFD5H;
+XKF25			= 0FFD6H;
+XKR5			= 0FFD6H;
+XKF26			= 0FFD7H;
+XKR6			= 0FFD7H;
+XKF27			= 0FFD8H;
+XKR7			= 0FFD8H;
+XKF28			= 0FFD9H;
+XKR8			= 0FFD9H;
+XKF29			= 0FFDAH;
+XKR9			= 0FFDAH;
+XKF30			= 0FFDBH;
+XKR10			= 0FFDBH;
+XKF31			= 0FFDCH;
+XKR11			= 0FFDCH;
+XKF32			= 0FFDDH;
+XKR12			= 0FFDDH;
+XKF33			= 0FFDEH;
+XKR13			= 0FFDEH;
+XKF34			= 0FFDFH;
+XKR14			= 0FFDFH;
+XKF35			= 0FFE0H;
+XKR15			= 0FFE0H;
+
+(* Modifiers *)
+
+XKShiftL		= 0FFE1H;	(* Left shift *)
+XKShiftR		= 0FFE2H;	(* Right shift *)
+XKControlL		= 0FFE3H;	(* Left control *)
+XKControlR		= 0FFE4H;	(* Right control *)
+XKCapsLock		= 0FFE5H;	(* Caps lock *)
+XKShiftLock		= 0FFE6H;	(* Shift lock *)
+
+XKMetaL			= 0FFE7H;	(* Left meta *)
+XKMetaR			= 0FFE8H;	(* Right meta *)
+XKAltL			= 0FFE9H;	(* Left alt *)
+XKAltR			= 0FFEAH;	(* Right alt *)
+XKSuperL		= 0FFEBH;	(* Left super *)
+XKSuperR		= 0FFECH;	(* Right super *)
+XKHyperL		= 0FFEDH;	(* Left hyper *)
+XKHyperR		= 0FFEEH;	(* Right hyper *)
+
+(*
+ * ISO 9995 Function and Modifier Keys
+ * Byte 3 = 0xFE
+ *)
+
+XKISOLock					= 0FE01H;
+XKISOLevel2Latch				= 0FE02H;
+XKISOLevel3Shift				= 0FE03H;
+XKISOLevel3Latch				= 0FE04H;
+XKISOLevel3Lock					= 0FE05H;
+XKISOGroupShift					= 0FF7EH;	(* Alias for modeswitch *)
+XKISOGroupLatch					= 0FE06H;
+XKISOGroupLock					= 0FE07H;
+XKISONextGroup					= 0FE08H;
+XKISONextGroupLock				= 0FE09H;
+XKISOPrevGroup					= 0FE0AH;
+XKISOPrevGroupLock				= 0FE0BH;
+XKISOFirstGroup					= 0FE0CH;
+XKISOFirstGroupLock				= 0FE0DH;
+XKISOLastGroup					= 0FE0EH;
+XKISOLastGroupLock				= 0FE0FH;
+
+XKISOLeftTab					= 0FE20H;
+XKISOMoveLineUp					= 0FE21H;
+XKISOMoveLineDown				= 0FE22H;
+XKISOPartialLineUp				= 0FE23H;
+XKISOPartialLineDown				= 0FE24H;
+XKISOPartialSpaceLeft				= 0FE25H;
+XKISOPartialSpaceRight				= 0FE26H;
+XKISOSetMarginLeft				= 0FE27H;
+XKISOSetMarginRight				= 0FE28H;
+XKISOReleaseMarginLeft				= 0FE29H;
+XKISOReleaseMarginRight				= 0FE2AH;
+XKISOReleaseBothMargins				= 0FE2BH;
+XKISOFastCursorLeft				= 0FE2CH;
+XKISOFastCursorRight				= 0FE2DH;
+XKISOFastCursorUp				= 0FE2EH;
+XKISOFastCursorDown				= 0FE2FH;
+XKISOContinuousUnderline			= 0FE30H;
+XKISODiscontinuousUnderline			= 0FE31H;
+XKISOEmphasize					= 0FE32H;
+XKISOCenterObject				= 0FE33H;
+XKISOEnter					= 0FE34H;
+
+XKdeadgrave					= 0FE50H;
+XKdeadacute					= 0FE51H;
+XKdeadcircumflex				= 0FE52H;
+XKdeadtilde					= 0FE53H;
+XKdeadmacron					= 0FE54H;
+XKdeadbreve					= 0FE55H;
+XKdeadabovedot					= 0FE56H;
+XKdeaddiaeresis					= 0FE57H;
+XKdeadabovering					= 0FE58H;
+XKdeaddoubleacute				= 0FE59H;
+XKdeadcaron					= 0FE5AH;
+XKdeadcedilla					= 0FE5BH;
+XKdeadogonek					= 0FE5CH;
+XKdeadiota					= 0FE5DH;
+XKdeadvoicedsound				= 0FE5EH;
+XKdeadsemivoicedsound				= 0FE5FH;
+XKdeadbelowdot					= 0FE60H;
+
+XKFirstVirtualScreen				= 0FED0H;
+XKPrevVirtualScreen				= 0FED1H;
+XKNextVirtualScreen				= 0FED2H;
+XKLastVirtualScreen				= 0FED4H;
+XKTerminateServer				= 0FED5H;
+
+XKAccessXEnable					= 0FE70H;
+XKAccessXFeedbackEnable				= 0FE71H;
+XKRepeatKeysEnable				= 0FE72H;
+XKSlowKeysEnable				= 0FE73H;
+XKBounceKeysEnable				= 0FE74H;
+XKStickyKeysEnable				= 0FE75H;
+XKMouseKeysEnable				= 0FE76H;
+XKMouseKeysAccelEnable				= 0FE77H;
+XKOverlay1Enable				= 0FE78H;
+XKOverlay2Enable				= 0FE79H;
+XKAudibleBellEnable				= 0FE7AH;
+
+XKPointerLeft					= 0FEE0H;
+XKPointerRight					= 0FEE1H;
+XKPointerUp					= 0FEE2H;
+XKPointerDown					= 0FEE3H;
+XKPointerUpLeft					= 0FEE4H;
+XKPointerUpRight				= 0FEE5H;
+XKPointerDownLeft				= 0FEE6H;
+XKPointerDownRight				= 0FEE7H;
+XKPointerButtonDflt				= 0FEE8H;
+XKPointerButton1				= 0FEE9H;
+XKPointerButton2				= 0FEEAH;
+XKPointerButton3				= 0FEEBH;
+XKPointerButton4				= 0FEECH;
+XKPointerButton5				= 0FEEDH;
+XKPointerDblClickDflt				= 0FEEEH;
+XKPointerDblClick1				= 0FEEFH;
+XKPointerDblClick2				= 0FEF0H;
+XKPointerDblClick3				= 0FEF1H;
+XKPointerDblClick4				= 0FEF2H;
+XKPointerDblClick5				= 0FEF3H;
+XKPointerDragDflt				= 0FEF4H;
+XKPointerDrag1					= 0FEF5H;
+XKPointerDrag2					= 0FEF6H;
+XKPointerDrag3					= 0FEF7H;
+XKPointerDrag4					= 0FEF8H;
+XKPointerDrag5					= 0FEFDH;
+
+XKPointerEnableKeys				= 0FEF9H;
+XKPointerAccelerate				= 0FEFAH;
+XKPointerDfltBtnNext				= 0FEFBH;
+XKPointerDfltBtnPrev				= 0FEFCH;
+
+
+(*
+ * 3270 Terminal Keys
+ * Byte 3 = 0xFD
+ *)
+
+XK3270Duplicate      = 0FD01H;
+XK3270FieldMark      = 0FD02H;
+XK3270Right2         = 0FD03H;
+XK3270Left2          = 0FD04H;
+XK3270BackTab        = 0FD05H;
+XK3270EraseEOF       = 0FD06H;
+XK3270EraseInput     = 0FD07H;
+XK3270Reset          = 0FD08H;
+XK3270Quit           = 0FD09H;
+XK3270PA1            = 0FD0AH;
+XK3270PA2            = 0FD0BH;
+XK3270PA3            = 0FD0CH;
+XK3270Test           = 0FD0DH;
+XK3270Attn           = 0FD0EH;
+XK3270CursorBlink    = 0FD0FH;
+XK3270AltCursor      = 0FD10H;
+XK3270KeyClick       = 0FD11H;
+XK3270Jump           = 0FD12H;
+XK3270Ident          = 0FD13H;
+XK3270Rule           = 0FD14H;
+XK3270Copy           = 0FD15H;
+XK3270Play           = 0FD16H;
+XK3270Setup          = 0FD17H;
+XK3270Record         = 0FD18H;
+XK3270ChangeScreen   = 0FD19H;
+XK3270DeleteWord     = 0FD1AH;
+XK3270ExSelect       = 0FD1BH;
+XK3270CursorSelect   = 0FD1CH;
+XK3270PrintScreen    = 0FD1DH;
+XK3270Enter          = 0FD1EH;
+
+(*
+ *  Latin 1
+ *  Byte 3 = 0
+ *)
+XKspace               = 0020H;
+XKexclam              = 0021H;
+XKquotedbl            = 0022H;
+XKnumbersign          = 0023H;
+XKdollar              = 0024H;
+XKpercent             = 0025H;
+XKampersand           = 0026H;
+XKapostrophe          = 0027H;
+XKquoteright          = 0027H;	(* deprecated *)
+XKparenleft           = 0028H;
+XKparenright          = 0029H;
+XKasterisk            = 002AH;
+XKplus                = 002BH;
+XKcomma               = 002CH;
+XKminus               = 002DH;
+XKperiod              = 002EH;
+XKslash               = 002FH;
+XK0                   = 0030H;
+XK1                   = 0031H;
+XK2                   = 0032H;
+XK3                   = 0033H;
+XK4                   = 0034H;
+XK5                   = 0035H;
+XK6                   = 0036H;
+XK7                   = 0037H;
+XK8                   = 0038H;
+XK9                   = 0039H;
+XKcolon               = 003AH;
+XKsemicolon           = 003BH;
+XKless                = 003CH;
+XKequal               = 003DH;
+XKgreater             = 003EH;
+XKquestion            = 003FH;
+XKat                  = 0040H;
+XKA                   = 0041H;
+XKB                   = 0042H;
+XKC                   = 0043H;
+XKD                   = 0044H;
+XKE                   = 0045H;
+XKF                   = 0046H;
+XKG                   = 0047H;
+XKH                   = 0048H;
+XKI                   = 0049H;
+XKJ                   = 004AH;
+XKK                   = 004BH;
+XKL                   = 004CH;
+XKM                   = 004DH;
+XKN                   = 004EH;
+XKO                   = 004FH;
+XKP                   = 0050H;
+XKQ                   = 0051H;
+XKR                   = 0052H;
+XKS                   = 0053H;
+XKT                   = 0054H;
+XKU                   = 0055H;
+XKV                   = 0056H;
+XKW                   = 0057H;
+XKX                   = 0058H;
+XKY                   = 0059H;
+XKZ                   = 005AH;
+XKbracketleft         = 005BH;
+XKbackslash           = 005CH;
+XKbracketright        = 005DH;
+XKasciicircum         = 005EH;
+XKunderscore          = 005FH;
+XKgrave               = 0060H;
+XKquoteleft           = 0060H;	(* deprecated *)
+XKa                   = 0061H;
+XKb                   = 0062H;
+XKc                   = 0063H;
+XKd                   = 0064H;
+XKe                   = 0065H;
+XKf                   = 0066H;
+XKg                   = 0067H;
+XKh                   = 0068H;
+XKi                   = 0069H;
+XKj                   = 006AH;
+XKk                   = 006BH;
+XKl                   = 006CH;
+XKm                   = 006DH;
+XKn                   = 006EH;
+XKo                   = 006FH;
+XKp                   = 0070H;
+XKq                   = 0071H;
+XKr                   = 0072H;
+XKs                   = 0073H;
+XKt                   = 0074H;
+XKu                   = 0075H;
+XKv                   = 0076H;
+XKw                   = 0077H;
+XKx                   = 0078H;
+XKy                   = 0079H;
+XKz                   = 007AH;
+XKbraceleft           = 007BH;
+XKbar                 = 007CH;
+XKbraceright          = 007DH;
+XKasciitilde          = 007EH;
+
+XKnobreakspace        = 00A0H;
+XKexclamdown          = 00A1H;
+XKcent        	      = 00A2H;
+XKsterling            = 00A3H;
+XKcurrency            = 00A4H;
+XKyen                 = 00A5H;
+XKbrokenbar           = 00A6H;
+XKsection             = 00A7H;
+XKdiaeresis           = 00A8H;
+XKcopyright           = 00A9H;
+XKordfeminine         = 00AAH;
+XKguillemotleft       = 00ABH;	(* left angle quotation mark *)
+XKnotsign             = 00ACH;
+XKhyphen              = 00ADH;
+XKregistered          = 00AEH;
+XKmacron              = 00AFH;
+XKdegree              = 00B0H;
+XKplusminus           = 00B1H;
+XKtwosuperior         = 00B2H;
+XKthreesuperior       = 00B3H;
+XKacute               = 00B4H;
+XKmu                  = 00B5H;
+XKparagraph           = 00B6H;
+XKperiodcentered      = 00B7H;
+XKcedilla             = 00B8H;
+XKonesuperior         = 00B9H;
+XKmasculine           = 00BAH;
+XKguillemotright      = 00BBH;	(* right angle quotation mark *)
+XKonequarter          = 00BCH;
+XKonehalf             = 00BDH;
+XKthreequarters       = 00BEH;
+XKquestiondown        = 00BFH;
+XKAgrave              = 00C0H;
+XKAacute              = 00C1H;
+XKAcircumflex         = 00C2H;
+XKAtilde              = 00C3H;
+XKAdiaeresis          = 00C4H;
+XKAring               = 00C5H;
+XKAE                  = 00C6H;
+XKCcedilla            = 00C7H;
+XKEgrave              = 00C8H;
+XKEacute              = 00C9H;
+XKEcircumflex         = 00CAH;
+XKEdiaeresis          = 00CBH;
+XKIgrave              = 00CCH;
+XKIacute              = 00CDH;
+XKIcircumflex         = 00CEH;
+XKIdiaeresis          = 00CFH;
+XKETH                 = 00D0H;
+XKEth                 = 00D0H;	(* deprecated *)
+XKNtilde              = 00D1H;
+XKOgrave              = 00D2H;
+XKOacute              = 00D3H;
+XKOcircumflex         = 00D4H;
+XKOtilde              = 00D5H;
+XKOdiaeresis          = 00D6H;
+XKmultiply            = 00D7H;
+XKOoblique            = 00D8H;
+XKUgrave              = 00D9H;
+XKUacute              = 00DAH;
+XKUcircumflex         = 00DBH;
+XKUdiaeresis          = 00DCH;
+XKYacute              = 00DDH;
+XKTHORN               = 00DEH;
+XKThorn               = 00DEH;	(* deprecated *)
+XKssharp              = 00DFH;
+XKagrave              = 00E0H;
+XKaacute              = 00E1H;
+XKacircumflex         = 00E2H;
+XKatilde              = 00E3H;
+XKadiaeresis          = 00E4H;
+XKaring               = 00E5H;
+XKae                  = 00E6H;
+XKccedilla            = 00E7H;
+XKegrave              = 00E8H;
+XKeacute              = 00E9H;
+XKecircumflex         = 00EAH;
+XKediaeresis          = 00EBH;
+XKigrave              = 00ECH;
+XKiacute              = 00EDH;
+XKicircumflex         = 00EEH;
+XKidiaeresis          = 00EFH;
+XKeth                 = 00F0H;
+XKntilde              = 00F1H;
+XKograve              = 00F2H;
+XKoacute              = 00F3H;
+XKocircumflex         = 00F4H;
+XKotilde              = 00F5H;
+XKodiaeresis          = 00F6H;
+XKdivision            = 00F7H;
+XKoslash              = 00F8H;
+XKugrave              = 00F9H;
+XKuacute              = 00FAH;
+XKucircumflex         = 00FBH;
+XKudiaeresis          = 00FCH;
+XKyacute              = 00FDH;
+XKthorn               = 00FEH;
+XKydiaeresis          = 00FFH;
+
+(*
+ *   Latin 2
+ *   Byte 3 = 1
+ *)
+
+XKAogonek             = 01A1H;
+XKbreve               = 01A2H;
+XKLstroke             = 01A3H;
+XKLcaron              = 01A5H;
+XKSacute              = 01A6H;
+XKScaron              = 01A9H;
+XKScedilla            = 01AAH;
+XKTcaron              = 01ABH;
+XKZacute              = 01ACH;
+XKZcaron              = 01AEH;
+XKZabovedot           = 01AFH;
+XKaogonek             = 01B1H;
+XKogonek              = 01B2H;
+XKlstroke             = 01B3H;
+XKlcaron              = 01B5H;
+XKsacute              = 01B6H;
+XKcaron               = 01B7H;
+XKscaron              = 01B9H;
+XKscedilla            = 01BAH;
+XKtcaron              = 01BBH;
+XKzacute              = 01BCH;
+XKdoubleacute         = 01BDH;
+XKzcaron              = 01BEH;
+XKzabovedot           = 01BFH;
+XKRacute              = 01C0H;
+XKAbreve              = 01C3H;
+XKLacute              = 01C5H;
+XKCacute              = 01C6H;
+XKCcaron              = 01C8H;
+XKEogonek             = 01CAH;
+XKEcaron              = 01CCH;
+XKDcaron              = 01CFH;
+XKDstroke             = 01D0H;
+XKNacute              = 01D1H;
+XKNcaron              = 01D2H;
+XKOdoubleacute        = 01D5H;
+XKRcaron              = 01D8H;
+XKUring               = 01D9H;
+XKUdoubleacute        = 01DBH;
+XKTcedilla            = 01DEH;
+XKracute              = 01E0H;
+XKabreve              = 01E3H;
+XKlacute              = 01E5H;
+XKcacute              = 01E6H;
+XKccaron              = 01E8H;
+XKeogonek             = 01EAH;
+XKecaron              = 01ECH;
+XKdcaron              = 01EFH;
+XKdstroke             = 01F0H;
+XKnacute              = 01F1H;
+XKncaron              = 01F2H;
+XKodoubleacute        = 01F5H;
+XKudoubleacute        = 01FBH;
+XKrcaron              = 01F8H;
+XKuring               = 01F9H;
+XKtcedilla            = 01FEH;
+XKabovedot            = 01FFH;
+
+(*
+ *   Latin 3
+ *   Byte 3 = 2
+ *)
+
+XKHstroke             = 02A1H;
+XKHcircumflex         = 02A6H;
+XKIabovedot           = 02A9H;
+XKGbreve              = 02ABH;
+XKJcircumflex         = 02ACH;
+XKhstroke             = 02B1H;
+XKhcircumflex         = 02B6H;
+XKidotless            = 02B9H;
+XKgbreve              = 02BBH;
+XKjcircumflex         = 02BCH;
+XKCabovedot           = 02C5H;
+XKCcircumflex         = 02C6H;
+XKGabovedot           = 02D5H;
+XKGcircumflex         = 02D8H;
+XKUbreve              = 02DDH;
+XKScircumflex         = 02DEH;
+XKcabovedot           = 02E5H;
+XKccircumflex         = 02E6H;
+XKgabovedot           = 02F5H;
+XKgcircumflex         = 02F8H;
+XKubreve              = 02FDH;
+XKscircumflex         = 02FEH;
+
+
+(*
+ *   Latin 4
+ *   Byte 3 = 3
+ *)
+
+XKkra                 = 03A2H;
+XKkappa               = 03A2H;	(* deprecated *)
+XKRcedilla            = 03A3H;
+XKItilde              = 03A5H;
+XKLcedilla            = 03A6H;
+XKEmacron             = 03AAH;
+XKGcedilla            = 03ABH;
+XKTslash              = 03ACH;
+XKrcedilla            = 03B3H;
+XKitilde              = 03B5H;
+XKlcedilla            = 03B6H;
+XKemacron             = 03BAH;
+XKgcedilla            = 03BBH;
+XKtslash              = 03BCH;
+XKENG                 = 03BDH;
+XKeng                 = 03BFH;
+XKAmacron             = 03C0H;
+XKIogonek             = 03C7H;
+XKEabovedot           = 03CCH;
+XKImacron             = 03CFH;
+XKNcedilla            = 03D1H;
+XKOmacron             = 03D2H;
+XKKcedilla            = 03D3H;
+XKUogonek             = 03D9H;
+XKUtilde              = 03DDH;
+XKUmacron             = 03DEH;
+XKamacron             = 03E0H;
+XKiogonek             = 03E7H;
+XKeabovedot           = 03ECH;
+XKimacron             = 03EFH;
+XKncedilla            = 03F1H;
+XKomacron             = 03F2H;
+XKkcedilla            = 03F3H;
+XKuogonek             = 03F9H;
+XKutilde              = 03FDH;
+XKumacron             = 03FEH;
+
+(*
+ * Latin-9 (a.k.a. Latin-0)
+ * Byte 3 = 19
+ *)
+
+XKOE                  = 013BCH;
+XKoe                  = 013BDH;
+XKYdiaeresis          = 013BEH;
+
+(*
+ * Katakana
+ * Byte 3 = 4
+ *)
+
+XKoverline				     = 047EH;
+XKkanafullstop                               = 04A1H;
+XKkanaopeningbracket                         = 04A2H;
+XKkanaclosingbracket                         = 04A3H;
+XKkanacomma                                  = 04A4H;
+XKkanaconjunctive                            = 04A5H;
+XKkanamiddledot                              = 04A5H;  (* deprecated *)
+XKkanaWO                                     = 04A6H;
+XKkanaa                                      = 04A7H;
+XKkanai                                      = 04A8H;
+XKkanau                                      = 04A9H;
+XKkanae                                      = 04AAH;
+XKkanao                                      = 04ABH;
+XKkanaya                                     = 04ACH;
+XKkanayu                                     = 04ADH;
+XKkanayo                                     = 04AEH;
+XKkanatsu                                    = 04AFH;
+XKkanatu                                     = 04AFH;  (* deprecated *)
+XKprolongedsound                             = 04B0H;
+XKkanaA                                      = 04B1H;
+XKkanaI                                      = 04B2H;
+XKkanaU                                      = 04B3H;
+XKkanaE                                      = 04B4H;
+XKkanaO                                      = 04B5H;
+XKkanaKA                                     = 04B6H;
+XKkanaKI                                     = 04B7H;
+XKkanaKU                                     = 04B8H;
+XKkanaKE                                     = 04B9H;
+XKkanaKO                                     = 04BAH;
+XKkanaSA                                     = 04BBH;
+XKkanaSHI                                    = 04BCH;
+XKkanaSU                                     = 04BDH;
+XKkanaSE                                     = 04BEH;
+XKkanaSO                                     = 04BFH;
+XKkanaTA                                     = 04C0H;
+XKkanaCHI                                    = 04C1H;
+XKkanaTI                                     = 04C1H;  (* deprecated *)
+XKkanaTSU                                    = 04C2H;
+XKkanaTU                                     = 04C2H;  (* deprecated *)
+XKkanaTE                                     = 04C3H;
+XKkanaTO                                     = 04C4H;
+XKkanaNA                                     = 04C5H;
+XKkanaNI                                     = 04C6H;
+XKkanaNU                                     = 04C7H;
+XKkanaNE                                     = 04C8H;
+XKkanaNO                                     = 04C9H;
+XKkanaHA                                     = 04CAH;
+XKkanaHI                                     = 04CBH;
+XKkanaFU                                     = 04CCH;
+XKkanaHU                                     = 04CCH;  (* deprecated *)
+XKkanaHE                                     = 04CDH;
+XKkanaHO                                     = 04CEH;
+XKkanaMA                                     = 04CFH;
+XKkanaMI                                     = 04D0H;
+XKkanaMU                                     = 04D1H;
+XKkanaME                                     = 04D2H;
+XKkanaMO                                     = 04D3H;
+XKkanaYA                                     = 04D4H;
+XKkanaYU                                     = 04D5H;
+XKkanaYO                                     = 04D6H;
+XKkanaRA                                     = 04D7H;
+XKkanaRI                                     = 04D8H;
+XKkanaRU                                     = 04D9H;
+XKkanaRE                                     = 04DAH;
+XKkanaRO                                     = 04DBH;
+XKkanaWA                                     = 04DCH;
+XKkanaN                                      = 04DDH;
+XKvoicedsound                                = 04DEH;
+XKsemivoicedsound                            = 04DFH;
+XKkanaswitch          = 0FF7EH;  (* Alias for modeswitch *)
+
+(*
+ *  Arabic
+ *  Byte 3 = 5
+ *)
+
+XKArabiccomma                                = 05ACH;
+XKArabicsemicolon                            = 05BBH;
+XKArabicquestionmark			     = 05BFH;
+XKArabichamza                                = 05C1H;
+XKArabicmaddaonalef                          = 05C2H;
+XKArabichamzaonalef                          = 05C3H;
+XKArabichamzaonwaw                           = 05C4H;
+XKArabichamzaunderalef                       = 05C5H;
+XKArabichamzaonyeh                           = 05C6H;
+XKArabicalef                                 = 05C7H;
+XKArabicbeh                                  = 05C8H;
+XKArabictehmarbuta                           = 05C9H;
+XKArabicteh                                  = 05CAH;
+XKArabictheh                                 = 05CBH;
+XKArabicjeem                                 = 05CCH;
+XKArabichah                                  = 05CDH;
+XKArabickhah                                 = 05CEH;
+XKArabicdal                                  = 05CFH;
+XKArabicthal                                 = 05D0H;
+XKArabicra                                   = 05D1H;
+XKArabiczain                                 = 05D2H;
+XKArabicseen                                 = 05D3H;
+XKArabicsheen                                = 05D4H;
+XKArabicsad                                  = 05D5H;
+XKArabicdad                                  = 05D6H;
+XKArabictah                                  = 05D7H;
+XKArabiczah                                  = 05D8H;
+XKArabicain                                  = 05D9H;
+XKArabicghain                                = 05DAH;
+XKArabictatweel                              = 05E0H;
+XKArabicfeh                                  = 05E1H;
+XKArabicqaf                                  = 05E2H;
+XKArabickaf                                  = 05E3H;
+XKArabiclam                                  = 05E4H;
+XKArabicmeem                                 = 05E5H;
+XKArabicnoon                                 = 05E6H;
+XKArabicha                                   = 05E7H;
+XKArabicheh                                  = 05E7H;  (* deprecated *)
+XKArabicwaw                                  = 05E8H;
+XKArabicalefmaksura                          = 05E9H;
+XKArabicyeh                                  = 05EAH;
+XKArabicfathatan                             = 05EBH;
+XKArabicdammatan                             = 05ECH;
+XKArabickasratan                             = 05EDH;
+XKArabicfatha                                = 05EEH;
+XKArabicdamma                                = 05EFH;
+XKArabickasra                                = 05F0H;
+XKArabicshadda                               = 05F1H;
+XKArabicsukun                                = 05F2H;
+XKArabicswitch        = 0FF7EH;  (* Alias for modeswitch *)
+
+(*
+ * Cyrillic
+ * Byte 3 = 6
+ *)
+XKSerbiandje                                 = 06A1H;
+XKMacedoniagje                               = 06A2H;
+XKCyrillicio                                 = 06A3H;
+XKUkrainianie                                = 06A4H;
+XKUkranianje                                 = 06A4H;  (* deprecated *)
+XKMacedoniadse                               = 06A5H;
+XKUkrainiani                                 = 06A6H;
+XKUkraniani                                  = 06A6H;  (* deprecated *)
+XKUkrainianyi                                = 06A7H;
+XKUkranianyi                                 = 06A7H;  (* deprecated *)
+XKCyrillicje                                 = 06A8H;
+XKSerbianje                                  = 06A8H;  (* deprecated *)
+XKCyrilliclje                                = 06A9H;
+XKSerbianlje                                 = 06A9H;  (* deprecated *)
+XKCyrillicnje                                = 06AAH;
+XKSerbiannje                                 = 06AAH;  (* deprecated *)
+XKSerbiantshe                                = 06ABH;
+XKMacedoniakje                               = 06ACH;
+XKByelorussianshortu                         = 06AEH;
+XKCyrillicdzhe                               = 06AFH;
+XKSerbiandze                                 = 06AFH;  (* deprecated *)
+XKnumerosign                                 = 06B0H;
+XKSerbianDJE                                 = 06B1H;
+XKMacedoniaGJE                               = 06B2H;
+XKCyrillicIO                                 = 06B3H;
+XKUkrainianIE                                = 06B4H;
+XKUkranianJE                                 = 06B4H;  (* deprecated *)
+XKMacedoniaDSE                               = 06B5H;
+XKUkrainianI                                 = 06B6H;
+XKUkranianI                                  = 06B6H;  (* deprecated *)
+XKUkrainianYI                                = 06B7H;
+XKUkranianYI                                 = 06B7H;  (* deprecated *)
+XKCyrillicJE                                 = 06B8H;
+XKSerbianJE                                  = 06B8H;  (* deprecated *)
+XKCyrillicLJE                                = 06B9H;
+XKSerbianLJE                                 = 06B9H;  (* deprecated *)
+XKCyrillicNJE                                = 06BAH;
+XKSerbianNJE                                 = 06BAH;  (* deprecated *)
+XKSerbianTSHE                                = 06BBH;
+XKMacedoniaKJE                               = 06BCH;
+XKByelorussianSHORTU                         = 06BEH;
+XKCyrillicDZHE                               = 06BFH;
+XKSerbianDZE                                 = 06BFH;  (* deprecated *)
+XKCyrillicyu                                 = 06C0H;
+XKCyrillica                                  = 06C1H;
+XKCyrillicbe                                 = 06C2H;
+XKCyrillictse                                = 06C3H;
+XKCyrillicde                                 = 06C4H;
+XKCyrillicie                                 = 06C5H;
+XKCyrillicef                                 = 06C6H;
+XKCyrillicghe                                = 06C7H;
+XKCyrillicha                                 = 06C8H;
+XKCyrillici                                  = 06C9H;
+XKCyrillicshorti                             = 06CAH;
+XKCyrillicka                                 = 06CBH;
+XKCyrillicel                                 = 06CCH;
+XKCyrillicem                                 = 06CDH;
+XKCyrillicen                                 = 06CEH;
+XKCyrillico                                  = 06CFH;
+XKCyrillicpe                                 = 06D0H;
+XKCyrillicya                                 = 06D1H;
+XKCyrillicer                                 = 06D2H;
+XKCyrillices                                 = 06D3H;
+XKCyrillicte                                 = 06D4H;
+XKCyrillicu                                  = 06D5H;
+XKCyrilliczhe                                = 06D6H;
+XKCyrillicve                                 = 06D7H;
+XKCyrillicsoftsign                           = 06D8H;
+XKCyrillicyeru                               = 06D9H;
+XKCyrillicze                                 = 06DAH;
+XKCyrillicsha                                = 06DBH;
+XKCyrillice                                  = 06DCH;
+XKCyrillicshcha                              = 06DDH;
+XKCyrillicche                                = 06DEH;
+XKCyrillichardsign                           = 06DFH;
+XKCyrillicYU                                 = 06E0H;
+XKCyrillicA                                  = 06E1H;
+XKCyrillicBE                                 = 06E2H;
+XKCyrillicTSE                                = 06E3H;
+XKCyrillicDE                                 = 06E4H;
+XKCyrillicIE                                 = 06E5H;
+XKCyrillicEF                                 = 06E6H;
+XKCyrillicGHE                                = 06E7H;
+XKCyrillicHA                                 = 06E8H;
+XKCyrillicI                                  = 06E9H;
+XKCyrillicSHORTI                             = 06EAH;
+XKCyrillicKA                                 = 06EBH;
+XKCyrillicEL                                 = 06ECH;
+XKCyrillicEM                                 = 06EDH;
+XKCyrillicEN                                 = 06EEH;
+XKCyrillicO                                  = 06EFH;
+XKCyrillicPE                                 = 06F0H;
+XKCyrillicYA                                 = 06F1H;
+XKCyrillicER                                 = 06F2H;
+XKCyrillicES                                 = 06F3H;
+XKCyrillicTE                                 = 06F4H;
+XKCyrillicU                                  = 06F5H;
+XKCyrillicZHE                                = 06F6H;
+XKCyrillicVE                                 = 06F7H;
+XKCyrillicSOFTSIGN                           = 06F8H;
+XKCyrillicYERU                               = 06F9H;
+XKCyrillicZE                                 = 06FAH;
+XKCyrillicSHA                                = 06FBH;
+XKCyrillicE                                  = 06FCH;
+XKCyrillicSHCHA                              = 06FDH;
+XKCyrillicCHE                                = 06FEH;
+XKCyrillicHARDSIGN                           = 06FFH;
+
+(*
+ * Greek
+ * Byte 3 = 7
+ *)
+
+XKGreekALPHAaccent                           = 07A1H;
+XKGreekEPSILONaccent                         = 07A2H;
+XKGreekETAaccent                             = 07A3H;
+XKGreekIOTAaccent                            = 07A4H;
+XKGreekIOTAdiaeresis                         = 07A5H;
+XKGreekOMICRONaccent                         = 07A7H;
+XKGreekUPSILONaccent                         = 07A8H;
+XKGreekUPSILONdieresis                       = 07A9H;
+XKGreekOMEGAaccent                           = 07ABH;
+XKGreekaccentdieresis                        = 07AEH;
+XKGreekhorizbar                              = 07AFH;
+XKGreekalphaaccent                           = 07B1H;
+XKGreekepsilonaccent                         = 07B2H;
+XKGreeketaaccent                             = 07B3H;
+XKGreekiotaaccent                            = 07B4H;
+XKGreekiotadieresis                          = 07B5H;
+XKGreekiotaaccentdieresis                    = 07B6H;
+XKGreekomicronaccent                         = 07B7H;
+XKGreekupsilonaccent                         = 07B8H;
+XKGreekupsilondieresis                       = 07B9H;
+XKGreekupsilonaccentdieresis                 = 07BAH;
+XKGreekomegaaccent                           = 07BBH;
+XKGreekALPHA                                 = 07C1H;
+XKGreekBETA                                  = 07C2H;
+XKGreekGAMMA                                 = 07C3H;
+XKGreekDELTA                                 = 07C4H;
+XKGreekEPSILON                               = 07C5H;
+XKGreekZETA                                  = 07C6H;
+XKGreekETA                                   = 07C7H;
+XKGreekTHETA                                 = 07C8H;
+XKGreekIOTA                                  = 07C9H;
+XKGreekKAPPA                                 = 07CAH;
+XKGreekLAMDA                                 = 07CBH;
+XKGreekLAMBDA                                = 07CBH;
+XKGreekMU                                    = 07CCH;
+XKGreekNU                                    = 07CDH;
+XKGreekXI                                    = 07CEH;
+XKGreekOMICRON                               = 07CFH;
+XKGreekPI                                    = 07D0H;
+XKGreekRHO                                   = 07D1H;
+XKGreekSIGMA                                 = 07D2H;
+XKGreekTAU                                   = 07D4H;
+XKGreekUPSILON                               = 07D5H;
+XKGreekPHI                                   = 07D6H;
+XKGreekCHI                                   = 07D7H;
+XKGreekPSI                                   = 07D8H;
+XKGreekOMEGA                                 = 07D9H;
+XKGreekalpha                                 = 07E1H;
+XKGreekbeta                                  = 07E2H;
+XKGreekgamma                                 = 07E3H;
+XKGreekdelta                                 = 07E4H;
+XKGreekepsilon                               = 07E5H;
+XKGreekzeta                                  = 07E6H;
+XKGreeketa                                   = 07E7H;
+XKGreektheta                                 = 07E8H;
+XKGreekiota                                  = 07E9H;
+XKGreekkappa                                 = 07EAH;
+XKGreeklamda                                 = 07EBH;
+XKGreeklambda                                = 07EBH;
+XKGreekmu                                    = 07ECH;
+XKGreeknu                                    = 07EDH;
+XKGreekxi                                    = 07EEH;
+XKGreekomicron                               = 07EFH;
+XKGreekpi                                    = 07F0H;
+XKGreekrho                                   = 07F1H;
+XKGreeksigma                                 = 07F2H;
+XKGreekfinalsmallsigma                       = 07F3H;
+XKGreektau                                   = 07F4H;
+XKGreekupsilon                               = 07F5H;
+XKGreekphi                                   = 07F6H;
+XKGreekchi                                   = 07F7H;
+XKGreekpsi                                   = 07F8H;
+XKGreekomega                                 = 07F9H;
+XKGreekswitch         = 0FF7EH;  (* Alias for modeswitch *)
+
+(*
+ * Technical
+ * Byte 3 = 8
+ *)
+
+XKleftradical                                 = 08A1H;
+XKtopleftradical                              = 08A2H;
+XKhorizconnector                              = 08A3H;
+XKtopintegral                                 = 08A4H;
+XKbotintegral                                 = 08A5H;
+XKvertconnector                               = 08A6H;
+XKtopleftsqbracket                            = 08A7H;
+XKbotleftsqbracket                            = 08A8H;
+XKtoprightsqbracket                           = 08A9H;
+XKbotrightsqbracket                           = 08AAH;
+XKtopleftparens                               = 08ABH;
+XKbotleftparens                               = 08ACH;
+XKtoprightparens                              = 08ADH;
+XKbotrightparens                              = 08AEH;
+XKleftmiddlecurlybrace                        = 08AFH;
+XKrightmiddlecurlybrace                       = 08B0H;
+XKtopleftsummation                            = 08B1H;
+XKbotleftsummation                            = 08B2H;
+XKtopvertsummationconnector                   = 08B3H;
+XKbotvertsummationconnector                   = 08B4H;
+XKtoprightsummation                           = 08B5H;
+XKbotrightsummation                           = 08B6H;
+XKrightmiddlesummation                        = 08B7H;
+XKlessthanequal                               = 08BCH;
+XKnotequal                                    = 08BDH;
+XKgreaterthanequal                            = 08BEH;
+XKintegral                                    = 08BFH;
+XKtherefore                                   = 08C0H;
+XKvariation                                   = 08C1H;
+XKinfinity                                    = 08C2H;
+XKnabla                                       = 08C5H;
+XKapproximate                                 = 08C8H;
+XKsimilarequal                                = 08C9H;
+XKifonlyif                                    = 08CDH;
+XKimplies                                     = 08CEH;
+XKidentical                                   = 08CFH;
+XKradical                                     = 08D6H;
+XKincludedin                                  = 08DAH;
+XKincludes                                    = 08DBH;
+XKintersection                                = 08DCH;
+XKunion                                       = 08DDH;
+XKlogicaland                                  = 08DEH;
+XKlogicalor                                   = 08DFH;
+XKpartialderivative                           = 08EFH;
+XKfunction                                    = 08F6H;
+XKleftarrow                                   = 08FBH;
+XKuparrow                                     = 08FCH;
+XKrightarrow                                  = 08FDH;
+XKdownarrow                                   = 08FEH;
+
+(*
+ *  Special
+ *  Byte 3 = 9
+ *)
+
+XKblank                                       = 09DFH;
+XKsoliddiamond                                = 09E0H;
+XKcheckerboard                                = 09E1H;
+XKht                                          = 09E2H;
+XKff                                          = 09E3H;
+XKcr                                          = 09E4H;
+XKlf                                          = 09E5H;
+XKnl                                          = 09E8H;
+XKvt                                          = 09E9H;
+XKlowrightcorner                              = 09EAH;
+XKuprightcorner                               = 09EBH;
+XKupleftcorner                                = 09ECH;
+XKlowleftcorner                               = 09EDH;
+XKcrossinglines                               = 09EEH;
+XKhorizlinescan1                              = 09EFH;
+XKhorizlinescan3                              = 09F0H;
+XKhorizlinescan5                              = 09F1H;
+XKhorizlinescan7                              = 09F2H;
+XKhorizlinescan9                              = 09F3H;
+XKleftt                                       = 09F4H;
+XKrightt                                      = 09F5H;
+XKbott                                        = 09F6H;
+XKtopt                                        = 09F7H;
+XKvertbar                                     = 09F8H;
+
+(*
+ *  Publishing
+ *  Byte 3 = a
+ *)
+
+XKemspace                                     = 0AA1H;
+XKenspace                                     = 0AA2H;
+XKem3space                                    = 0AA3H;
+XKem4space                                    = 0AA4H;
+XKdigitspace                                  = 0AA5H;
+XKpunctspace                                  = 0AA6H;
+XKthinspace                                   = 0AA7H;
+XKhairspace                                   = 0AA8H;
+XKemdash                                      = 0AA9H;
+XKendash                                      = 0AAAH;
+XKsignifblank                                 = 0AACH;
+XKellipsis                                    = 0AAEH;
+XKdoubbaselinedot                             = 0AAFH;
+XKonethird                                    = 0AB0H;
+XKtwothirds                                   = 0AB1H;
+XKonefifth                                    = 0AB2H;
+XKtwofifths                                   = 0AB3H;
+XKthreefifths                                 = 0AB4H;
+XKfourfifths                                  = 0AB5H;
+XKonesixth                                    = 0AB6H;
+XKfivesixths                                  = 0AB7H;
+XKcareof                                      = 0AB8H;
+XKfigdash                                     = 0ABBH;
+XKleftanglebracket                            = 0ABCH;
+XKdecimalpoint                                = 0ABDH;
+XKrightanglebracket                           = 0ABEH;
+XKmarker                                      = 0ABFH;
+XKoneeighth                                   = 0AC3H;
+XKthreeeighths                                = 0AC4H;
+XKfiveeighths                                 = 0AC5H;
+XKseveneighths                                = 0AC6H;
+XKtrademark                                   = 0AC9H;
+XKsignaturemark                               = 0ACAH;
+XKtrademarkincircle                           = 0ACBH;
+XKleftopentriangle                            = 0ACCH;
+XKrightopentriangle                           = 0ACDH;
+XKemopencircle                                = 0ACEH;
+XKemopenrectangle                             = 0ACFH;
+XKleftsinglequotemark                         = 0AD0H;
+XKrightsinglequotemark                        = 0AD1H;
+XKleftdoublequotemark                         = 0AD2H;
+XKrightdoublequotemark                        = 0AD3H;
+XKprescription                                = 0AD4H;
+XKminutes                                     = 0AD6H;
+XKseconds                                     = 0AD7H;
+XKlatincross                                  = 0AD9H;
+XKhexagram                                    = 0ADAH;
+XKfilledrectbullet                            = 0ADBH;
+XKfilledlefttribullet                         = 0ADCH;
+XKfilledrighttribullet                        = 0ADDH;
+XKemfilledcircle                              = 0ADEH;
+XKemfilledrect                                = 0ADFH;
+XKenopencircbullet                            = 0AE0H;
+XKenopensquarebullet                          = 0AE1H;
+XKopenrectbullet                              = 0AE2H;
+XKopentribulletup                             = 0AE3H;
+XKopentribulletdown                           = 0AE4H;
+XKopenstar                                    = 0AE5H;
+XKenfilledcircbullet                          = 0AE6H;
+XKenfilledsqbullet                            = 0AE7H;
+XKfilledtribulletup                           = 0AE8H;
+XKfilledtribulletdown                         = 0AE9H;
+XKleftpointer                                 = 0AEAH;
+XKrightpointer                                = 0AEBH;
+XKclub                                        = 0AECH;
+XKdiamond                                     = 0AEDH;
+XKheart                                       = 0AEEH;
+XKmaltesecross                                = 0AF0H;
+XKdagger                                      = 0AF1H;
+XKdoubledagger                                = 0AF2H;
+XKcheckmark                                   = 0AF3H;
+XKballotcross                                 = 0AF4H;
+XKmusicalsharp                                = 0AF5H;
+XKmusicalflat                                 = 0AF6H;
+XKmalesymbol                                  = 0AF7H;
+XKfemalesymbol                                = 0AF8H;
+XKtelephone                                   = 0AF9H;
+XKtelephonerecorder                           = 0AFAH;
+XKphonographcopyright                         = 0AFBH;
+XKcaret                                       = 0AFCH;
+XKsinglelowquotemark                          = 0AFDH;
+XKdoublelowquotemark                          = 0AFEH;
+XKcursor                                      = 0AFFH;
+
+(*
+ *  APL
+ *  Byte 3 = b
+ *)
+
+XKleftcaret                                   = 0BA3H;
+XKrightcaret                                  = 0BA6H;
+XKdowncaret                                   = 0BA8H;
+XKupcaret                                     = 0BA9H;
+XKoverbar                                     = 0BC0H;
+XKdowntack                                    = 0BC2H;
+XKupshoe                                      = 0BC3H;
+XKdownstile                                   = 0BC4H;
+XKunderbar                                    = 0BC6H;
+XKjot                                         = 0BCAH;
+XKquad                                        = 0BCCH;
+XKuptack                                      = 0BCEH;
+XKcircle                                      = 0BCFH;
+XKupstile                                     = 0BD3H;
+XKdownshoe                                    = 0BD6H;
+XKrightshoe                                   = 0BD8H;
+XKleftshoe                                    = 0BDAH;
+XKlefttack                                    = 0BDCH;
+XKrighttack                                   = 0BFCH;
+
+(*
+ * Hebrew
+ * Byte 3 = c
+ *)
+
+XKhebrewdoublelowline                        = 0CDFH;
+XKhebrewaleph                                = 0CE0H;
+XKhebrewbet                                  = 0CE1H;
+XKhebrewbeth                                 = 0CE1H;  (* deprecated *)
+XKhebrewgimel                                = 0CE2H;
+XKhebrewgimmel                               = 0CE2H;  (* deprecated *)
+XKhebrewdalet                                = 0CE3H;
+XKhebrewdaleth                               = 0CE3H;  (* deprecated *)
+XKhebrewhe                                   = 0CE4H;
+XKhebrewwaw                                  = 0CE5H;
+XKhebrewzain                                 = 0CE6H;
+XKhebrewzayin                                = 0CE6H;  (* deprecated *)
+XKhebrewchet                                 = 0CE7H;
+XKhebrewhet                                  = 0CE7H;  (* deprecated *)
+XKhebrewtet                                  = 0CE8H;
+XKhebrewteth                                 = 0CE8H;  (* deprecated *)
+XKhebrewyod                                  = 0CE9H;
+XKhebrewfinalkaph                            = 0CEAH;
+XKhebrewkaph                                 = 0CEBH;
+XKhebrewlamed                                = 0CECH;
+XKhebrewfinalmem                             = 0CEDH;
+XKhebrewmem                                  = 0CEEH;
+XKhebrewfinalnun                             = 0CEFH;
+XKhebrewnun                                  = 0CF0H;
+XKhebrewsamech                               = 0CF1H;
+XKhebrewsamekh                               = 0CF1H;  (* deprecated *)
+XKhebrewayin                                 = 0CF2H;
+XKhebrewfinalpe                              = 0CF3H;
+XKhebrewpe                                   = 0CF4H;
+XKhebrewfinalzade                            = 0CF5H;
+XKhebrewfinalzadi                            = 0CF5H;  (* deprecated *)
+XKhebrewzade                                 = 0CF6H;
+XKhebrewzadi                                 = 0CF6H;  (* deprecated *)
+XKhebrewqoph                                 = 0CF7H;
+XKhebrewkuf                                  = 0CF7H;  (* deprecated *)
+XKhebrewresh                                 = 0CF8H;
+XKhebrewshin                                 = 0CF9H;
+XKhebrewtaw                                  = 0CFAH;
+XKhebrewtaf                                  = 0CFAH;  (* deprecated *)
+XKHebrewswitch        = 0FF7EH;  (* Alias for modeswitch *)
+
+(*
+ * Thai
+ * Byte 3 = d
+ *)
+
+XKThaikokai					= 0DA1H;
+XKThaikhokhai					= 0DA2H;
+XKThaikhokhuat					= 0DA3H;
+XKThaikhokhwai					= 0DA4H;
+XKThaikhokhon					= 0DA5H;
+XKThaikhorakhang			        = 0DA6H;
+XKThaingongu					= 0DA7H;
+XKThaichochan					= 0DA8H;
+XKThaichoching					= 0DA9H;
+XKThaichochang					= 0DAAH;
+XKThaisoso					= 0DABH;
+XKThaichochoe					= 0DACH;
+XKThaiyoying					= 0DADH;
+XKThaidochada					= 0DAEH;
+XKThaitopatak					= 0DAFH;
+XKThaithothan					= 0DB0H;
+XKThaithonangmontho			        = 0DB1H;
+XKThaithophuthao			        = 0DB2H;
+XKThainonen					= 0DB3H;
+XKThaidodek					= 0DB4H;
+XKThaitotao					= 0DB5H;
+XKThaithothung					= 0DB6H;
+XKThaithothahan					= 0DB7H;
+XKThaithothong	 				= 0DB8H;
+XKThainonu					= 0DB9H;
+XKThaibobaimai					= 0DBAH;
+XKThaipopla					= 0DBBH;
+XKThaiphophung					= 0DBCH;
+XKThaifofa					= 0DBDH;
+XKThaiphophan					= 0DBEH;
+XKThaifofan					= 0DBFH;
+XKThaiphosamphao			        = 0DC0H;
+XKThaimoma					= 0DC1H;
+XKThaiyoyak					= 0DC2H;
+XKThairorua					= 0DC3H;
+XKThairu					= 0DC4H;
+XKThailoling					= 0DC5H;
+XKThailu					= 0DC6H;
+XKThaiwowaen					= 0DC7H;
+XKThaisosala					= 0DC8H;
+XKThaisorusi					= 0DC9H;
+XKThaisosua					= 0DCAH;
+XKThaihohip					= 0DCBH;
+XKThailochula					= 0DCCH;
+XKThaioang					= 0DCDH;
+XKThaihonokhuk					= 0DCEH;
+XKThaipaiyannoi					= 0DCFH;
+XKThaisaraa					= 0DD0H;
+XKThaimaihanakat				= 0DD1H;
+XKThaisaraaa					= 0DD2H;
+XKThaisaraam					= 0DD3H;
+XKThaisarai					= 0DD4H;
+XKThaisaraii					= 0DD5H;
+XKThaisaraue					= 0DD6H;
+XKThaisarauee					= 0DD7H;
+XKThaisarau					= 0DD8H;
+XKThaisarauu					= 0DD9H;
+XKThaiphinthu					= 0DDAH;
+XKThaimaihanakatmaitho   			= 0DDEH;
+XKThaibaht					= 0DDFH;
+XKThaisarae					= 0DE0H;
+XKThaisaraae					= 0DE1H;
+XKThaisarao					= 0DE2H;
+XKThaisaraaimaimuan				= 0DE3H;
+XKThaisaraaimaimalai				= 0DE4H;
+XKThailakkhangyao				= 0DE5H;
+XKThaimaiyamok					= 0DE6H;
+XKThaimaitaikhu					= 0DE7H;
+XKThaimaiek					= 0DE8H;
+XKThaimaitho					= 0DE9H;
+XKThaimaitri					= 0DEAH;
+XKThaimaichattawa				= 0DEBH;
+XKThaithanthakhat				= 0DECH;
+XKThainikhahit					= 0DEDH;
+XKThaileksun					= 0DF0H;
+XKThaileknung					= 0DF1H;
+XKThaileksong					= 0DF2H;
+XKThaileksam					= 0DF3H;
+XKThaileksi					= 0DF4H;
+XKThailekha					= 0DF5H;
+XKThailekhok					= 0DF6H;
+XKThailekchet					= 0DF7H;
+XKThailekpaet					= 0DF8H;
+XKThailekkao					= 0DF9H;
+
+(*
+ *   Korean
+ *   Byte 3 = e
+ *)
+
+
+XKHangul		= 0FF31H;    (* Hangul start/stop(toggle) *)
+XKHangulStart		= 0FF32H;    (* Hangul start *)
+XKHangulEnd		= 0FF33H;    (* Hangul end, English start *)
+XKHangulHanja		= 0FF34H;    (* Start Hangul->Hanja Conversion *)
+XKHangulJamo		= 0FF35H;    (* Hangul Jamo mode *)
+XKHangulRomaja		= 0FF36H;    (* Hangul Romaja mode *)
+XKHangulCodeinput	= 0FF37H;    (* Hangul code input mode *)
+XKHangulJeonja		= 0FF38H;    (* Jeonja mode *)
+XKHangulBanja		= 0FF39H;    (* Banja mode *)
+XKHangulPreHanja	= 0FF3AH;    (* Pre Hanja conversion *)
+XKHangulPostHanja	= 0FF3BH;    (* Post Hanja conversion *)
+XKHangulSingleCandidate	= 0FF3CH;    (* Single candidate *)
+XKHangulMultipleCandidate	= 0FF3DH;    (* Multiple candidate *)
+XKHangulPreviousCandidate	= 0FF3EH;    (* Previous candidate *)
+XKHangulSpecial		= 0FF3FH;    (* Special symbols *)
+XKHangulswitch		= 0FF7EH;    (* Alias for modeswitch *)
+
+(* Hangul Consonant Characters *)
+XKHangulKiyeog					= 0EA1H;
+XKHangulSsangKiyeog				= 0EA2H;
+XKHangulKiyeogSios				= 0EA3H;
+XKHangulNieun					= 0EA4H;
+XKHangulNieunJieuj				= 0EA5H;
+XKHangulNieunHieuh				= 0EA6H;
+XKHangulDikeud					= 0EA7H;
+XKHangulSsangDikeud				= 0EA8H;
+XKHangulRieul					= 0EA9H;
+XKHangulRieulKiyeog				= 0EAAH;
+XKHangulRieulMieum				= 0EABH;
+XKHangulRieulPieub				= 0EACH;
+XKHangulRieulSios				= 0EADH;
+XKHangulRieulTieut				= 0EAEH;
+XKHangulRieulPhieuf				= 0EAFH;
+XKHangulRieulHieuh				= 0EB0H;
+XKHangulMieum					= 0EB1H;
+XKHangulPieub					= 0EB2H;
+XKHangulSsangPieub				= 0EB3H;
+XKHangulPieubSios				= 0EB4H;
+XKHangulSios					= 0EB5H;
+XKHangulSsangSios				= 0EB6H;
+XKHangulIeung					= 0EB7H;
+XKHangulJieuj					= 0EB8H;
+XKHangulSsangJieuj				= 0EB9H;
+XKHangulCieuc					= 0EBAH;
+XKHangulKhieuq					= 0EBBH;
+XKHangulTieut					= 0EBCH;
+XKHangulPhieuf					= 0EBDH;
+XKHangulHieuh					= 0EBEH;
+
+(* Hangul Vowel Characters *)
+XKHangulA					= 0EBFH;
+XKHangulAE					= 0EC0H;
+XKHangulYA					= 0EC1H;
+XKHangulYAE					= 0EC2H;
+XKHangulEO					= 0EC3H;
+XKHangulE					= 0EC4H;
+XKHangulYEO					= 0EC5H;
+XKHangulYE					= 0EC6H;
+XKHangulO					= 0EC7H;
+XKHangulWA					= 0EC8H;
+XKHangulWAE					= 0EC9H;
+XKHangulOE					= 0ECAH;
+XKHangulYO					= 0ECBH;
+XKHangulU					= 0ECCH;
+XKHangulWEO					= 0ECDH;
+XKHangulWE					= 0ECEH;
+XKHangulWI					= 0ECFH;
+XKHangulYU					= 0ED0H;
+XKHangulEU					= 0ED1H;
+XKHangulYI					= 0ED2H;
+XKHangulI					= 0ED3H;
+
+(* Hangul syllable-final (JongSeong) Characters *)
+XKHangulJKiyeog					= 0ED4H;
+XKHangulJSsangKiyeog				= 0ED5H;
+XKHangulJKiyeogSios				= 0ED6H;
+XKHangulJNieun					= 0ED7H;
+XKHangulJNieunJieuj				= 0ED8H;
+XKHangulJNieunHieuh				= 0ED9H;
+XKHangulJDikeud					= 0EDAH;
+XKHangulJRieul					= 0EDBH;
+XKHangulJRieulKiyeog				= 0EDCH;
+XKHangulJRieulMieum				= 0EDDH;
+XKHangulJRieulPieub				= 0EDEH;
+XKHangulJRieulSios				= 0EDFH;
+XKHangulJRieulTieut				= 0EE0H;
+XKHangulJRieulPhieuf				= 0EE1H;
+XKHangulJRieulHieuh				= 0EE2H;
+XKHangulJMieum					= 0EE3H;
+XKHangulJPieub					= 0EE4H;
+XKHangulJPieubSios				= 0EE5H;
+XKHangulJSios					= 0EE6H;
+XKHangulJSsangSios				= 0EE7H;
+XKHangulJIeung					= 0EE8H;
+XKHangulJJieuj					= 0EE9H;
+XKHangulJCieuc					= 0EEAH;
+XKHangulJKhieuq					= 0EEBH;
+XKHangulJTieut					= 0EECH;
+XKHangulJPhieuf					= 0EEDH;
+XKHangulJHieuh					= 0EEEH;
+
+(* Ancient Hangul Consonant Characters *)
+XKHangulRieulYeorinHieuh			= 0EEFH;
+XKHangulSunkyeongeumMieum			= 0EF0H;
+XKHangulSunkyeongeumPieub			= 0EF1H;
+XKHangulPanSios					= 0EF2H;
+XKHangulKkogjiDalrinIeung			= 0EF3H;
+XKHangulSunkyeongeumPhieuf			= 0EF4H;
+XKHangulYeorinHieuh				= 0EF5H;
+
+(* Ancient Hangul Vowel Characters *)
+XKHangulAraeA					= 0EF6H;
+XKHangulAraeAE					= 0EF7H;
+
+(* Ancient Hangul syllable-final (JongSeong) Characters *)
+XKHangulJPanSios				= 0EF8H;
+XKHangulJKkogjiDalrinIeung			= 0EF9H;
+XKHangulJYeorinHieuh				= 0EFAH;
+
+(* Korean currency symbol *)
+XKKoreanWon					= 0EFFH;
+
+
+XKEcuSign					= 020A0H;
+XKColonSign					= 020A1H;
+XKCruzeiroSign					= 020A2H;
+XKFFrancSign					= 020A3H;
+XKLiraSign					= 020A4H;
+XKMillSign					= 020A5H;
+XKNairaSign					= 020A6H;
+XKPesetaSign					= 020A7H;
+XKRupeeSign					= 020A8H;
+XKWonSign					= 020A9H;
+XKNewSheqelSign					= 020AAH;
+XKDongSign					= 020ABH;
+XKEuroSign					= 020ACH;
+
+END KeySyms.

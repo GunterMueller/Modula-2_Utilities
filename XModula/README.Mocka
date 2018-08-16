@@ -1,0 +1,48 @@
+Compiling X11R6 programs in Modula-2 using Mocka
+================================================
+
+Installing:
+
+Copy the files ending in '.md' and '.mi' from the XModula directory in your Modula-2 sources
+directory. The other files are only needed for mtc and are not necessary with Mocka.
+
+X11 libraries are not object modules like the ones ending in '.o' but shared libraries. You have
+to tell the linker where to find it them by modifying the 'link' script of Mocka or else modules
+using X11 will fail to link. This script is usually located in <...>/mocka/sys/link, where <...>
+is the place where the mocka drawer has been installed. The exact location of the 'link' script is
+given in the /usr/bin/mc script. Refer to the Mocka documentation for more information about these
+files.
+
+Edit the 'link' script and look for the line that calls the linker: depending on the version of
+Mocka, it begins with '/bin/ld' (and is splited into multiple lines using '\'), or with '$(LD)'.
+Just before '-o', add '-lX11 -L/usr/X11R6/lib ' (without the quotes).
+
+Note: '/usr/X11R6/lib' is the location of the X11 libraries; if these libraries are installed
+somewhere else in your system, you may want to replace '/usr/X11R6/lib' by the correct location.
+In all case, it is the directory that should contains one or more files beginning with 'libX11',
+usually 'libX11.so'.
+
+Now you are done ! Have a look at XTest.mi for an example module that uses X11. You may also want
+to have a look at the foreign definition modules.
+
+
+NOTES:
+
+They are some dummy files named 'Xlib.mi', 'X.mi' and 'Xutil.mi' that are empty implementations.
+These files are needed because the Mocka linker needs a file ending in '.o' for each foreign
+module, even if the code is somewhere else. You have to compile these dummy implementations to
+generate dummy '.o' files required by the linker (normally they are compiled automatically as
+required if you work in session-mode).
+
+The foreign modules of X11 only use types imported from Xglobal.md to make them easily adaptable
+with other compilers that have different storage representations. You do not need to change
+Xglobal.md with Mocka.
+
+Some X structures and calls use a 8-bit wide cardinal type which does unfortunatly not exist in
+Mocka. This type, called CARD8 in Xglobal, has been declared as CHAR (which is also 8-bit wide)
+instead of BYTE or WORD, therefore you can at least convert from and to CARDINAL values using
+CHR() and ORD(). Look in the example XTest.mi how the 'flags' member of the XColor structure is
+initialized for an example. Read the file README for some notes about ARRAY OF CHAR.
+
+
+Have fun !

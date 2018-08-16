@@ -1,0 +1,3770 @@
+(* $XConsortium: Xlib.h /main/119 1996/09/28 16:35:29 rws $ *)
+(* $XFree86: xc/lib/X11/Xlib.h,v 3.10 1996/12/23 05:59:47 dawes Exp $ *)
+(*
+
+Copyright (c) 1985, 1986, 1987, 1991  X Consortium
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Except as contained in this notice, the name of the X Consortium shall not be
+used in advertising or otherwise to promote the sale, use or other dealings
+in this Software without prior written authorization from the X Consortium.
+
+*)
+
+
+(*
+ *	Xlib.h - Header definition and support file for the C subroutine
+ *	interface library (Xlib) to the X Window System Protocol (V11).
+ *	Structures and symbols starting with "_" are private to the library.
+ *)
+
+(*
+ *	Aug-1999:
+ *	Translated to Modula-2 by Nicky.
+ *      Use it at your own risks !
+ *)
+
+FOREIGN MODULE Xlib;
+
+ FROM SYSTEM IMPORT BYTE, ADDRESS;
+ FROM Xglobal IMPORT CARD8, INT16, CARD16, INT, CARD, INT32, CARD32, SET32,
+  BOOL, StringPtr, INTPtr, CARD32Ptr, StringPtrPtr, Many;
+
+(* #include <X11/X.h>: *)
+ FROM X IMPORT XID, Mask, Atom, AtomPtr, VisualID, Time, Window, WindowPtr,
+  Drawable, Font, Pixmap, Cursor, Colormap, ColormapPtr, GContext, KeySym,
+  KeySymPtr, KeyCode, KeyCodePtr, XFontSet, XIM, XIC, XOM, XOC;
+
+(*
+ * Naming conventions:
+ *
+ *  <C> -> <Modula-2>:
+ *
+ *  xxx_yyy -> xxxYyy
+ *  *type -> typePtr
+ *  variable_return -> VAR variable
+ * 	(* If the ptr in C refers to an array, create an array and pass
+ * 	   the first element of it to the var-parameter *)
+ *  CHARPtr + INT -> VAR ARRAY OF CHAR
+ *  <Private> -> ADDRESS (therefore compatible with NIL)
+ *
+ *  basic types: see Xglobal.md
+ *)
+
+
+TYPE
+ wcharT = CARD32;
+ wcharTPtr = POINTER TO wcharT;
+
+ XPointer = ADDRESS;
+ XPointerPtr = POINTER TO XPointer;
+
+ Status = INT;
+
+CONST
+ True = 1;
+ False = 0;
+
+CONST
+ QueuedAlready = 0;
+ QueuedAfterReading = 1;
+ QueuedAfterFlush = 2;
+
+CONST
+ AllPlanes = MAX(CARD32);
+
+
+(*
+ * Extensions need a way to hang private data on some structures.
+ *)
+
+TYPE
+
+XExtDataPtr = POINTER TO XExtData;
+XExtData = RECORD
+	number: INT;		(* number returned by XRegisterExtension *)
+	next: XExtDataPtr;	(* next item on list of data for structure *)
+	freePrivate: PROCEDURE(XExtDataPtr): INT;	(* called to free private storage *)
+	privateData: XPointer;	(* data private to this extension. *)
+END;
+
+(*
+ * This file contains structures used by the extension mechanism.
+ *)
+XExtCodesPtr = POINTER TO XExtCodes;
+XExtCodes = RECORD		(* public to extension, cannot be changed *)
+	extension: INT;		(* extension number *)
+	majorOpcode: INT;	(* major op-code assigned by server *)
+	firstEvent: INT;	(* first event number for the extension *)
+	firstError: INT;	(* first error number for the extension *)
+END;
+
+(*
+ * Data structure for retrieving info about pixmap formats.
+ *)
+
+XPixmapFormatValuesPtr = POINTER TO XPixmapFormatValues;
+XPixmapFormatValues = RECORD
+	depth: INT;
+	bitsPerPixel: INT;
+	scanlinePad: INT;
+END;
+
+
+(*
+ * Data structure for setting graphics context.
+ *)
+XGCValuesPtr = POINTER TO XGCValues;
+XGCValues = RECORD
+	function: INT;		(* logical operation *)
+	planeMask: CARD32;	(* plane mask *)
+	foreground: CARD32;	(* foreground pixel *)
+	background: CARD32;	(* background pixel *)
+	lineWidth: INT;		(* line width *)
+	lineStyle: INT;	 	(* LineSolid, LineOnOffDash, LineDoubleDash *)
+	capStyle: INT;	  	(* CapNotLast, CapButt,
+				   CapRound, CapProjecting *)
+	joinStyle: INT;	 	(* JoinMiter, JoinRound, JoinBevel *)
+	fillStyle: INT;	 	(* FillSolid, FillTiled,
+				   FillStippled, FillOpaeueStippled *)
+	fillRule: INT;	  	(* EvenOddRule, WindingRule *)
+	arcMode: INT;		(* ArcChord, ArcPieSlice *)
+	tile: Pixmap;		(* tile pixmap for tiling operations *)
+	stipple: Pixmap;	(* stipple 1 plane pixmap for stipping *)
+	tsXOrigin: INT;		(* offset for tile or stipple operations *)
+	tsYOrigin: INT;
+	font: Font;	        (* default text font for text operations *)
+	subwindowMode: INT;     (* ClipByChildren, IncludeInferiors *)
+	graphicsExposures: BOOL;(* boolean, should exposures be generated *)
+	clipXOrigin: INT;	(* origin for clipping *)
+	clipYOrigin: INT;
+	clipMask: Pixmap;	(* bitmap clipping; other calls for rects *)
+	dashOffset: INT;	(* patterned/dashed line information *)
+	dashes: CHAR;
+END;
+
+(*
+ * Graphics context.  The contents of this structure are implementation
+ * dependent.  A GC should be treated as opaque by application code.
+ *)
+
+GC = ADDRESS; (* private, therefore opaque *)
+
+(*
+ * Visual structure; contains information about colormapping possible.
+ *)
+VisualPtr = POINTER TO Visual;
+Visual = RECORD
+	extData: XExtDataPtr;	(* hook for extension to hang data *)
+	visualid: VisualID;	(* visual id of this visual *)
+	class: INT;		(* class of screen (monochrome, etc.) *)
+	redMask, greenMask, blueMask: CARD32;	(* mask values *)
+	bitsPerRgb: INT;	(* log base 2 of distinct color values *)
+	mapEntries: INT;	(* color map entries *)
+END;
+
+(*
+ * Depth structure; contains information for each possible depth.
+ *)
+DepthPtr = POINTER TO Depth;
+Depth = RECORD
+	depth: INT;		(* this depth (Z) of the depth *)
+	nvisuals: INT;		(* number of Visual types at this depth *)
+	visuals: VisualPtr;	(* list of visuals possible at this depth *)
+END;
+
+(*
+ * Information about the screen.  The contents of this structure are
+ * implementation dependent.  A Screen should be treated as opaque
+ * by application code.
+ *)
+
+DisplayPtr = POINTER TO Display;
+
+ScreenPtr = POINTER TO Screen;
+Screen = RECORD
+	extData: XExtDataPtr;	(* hook for extension to hang data *)
+	display: DisplayPtr;	(* back pointer to display structure *)
+	root: Window;		(* Root window id. *)
+	width, height: INT;	(* width and height of screen *)
+	mwidth, mheight: INT;	(* width and height of  in millimeters *)
+	ndepths: INT;		(* number of depths possible *)
+	depths: DepthPtr;	(* list of allowable depths on the screen *)
+	rootDepth: INT;		(* bits per pixel *)
+	rootVisual: VisualPtr;	(* root visual *)
+	defaultGc: GC;		(* GC for the root root visual *)
+	cmap: Colormap;		(* default color map *)
+	whitePixel: CARD32;
+	blackPixel: CARD32;	(* White and Black pixel values *)
+	maxMaps, minMaps: INT;	(* max and min color maps *)
+	backingStore: INT;	(* Never, WhenMapped, Always *)
+	saveUnders: BOOL;
+	rootInputMask: SET32;	(* initial root input mask *)
+END;
+
+(*
+ * Format structure; describes ZFormat data the screen will understand.
+ *)
+ScreenFormatPtr = POINTER TO ScreenFormat;
+ScreenFormat = RECORD
+	extData: XExtDataPtr;	(* hook for extension to hang data *)
+	depth: INT;		(* depth of this image format *)
+	bitsPerPixel: INT;	(* bits/pixel at this depth *)
+	scanlinePad: INT;	(* scanline must padded to this multiple *)
+END;
+
+(*
+ * Data structure for setting window attributes.
+ *)
+XSetWindowAttributesPtr = POINTER TO XSetWindowAttributes;
+XSetWindowAttributes = RECORD
+    backgroundPixmap: Pixmap;	(* background or None or ParentRelative *)
+    backgroundPixel: CARD32;	(* background pixel *)
+    borderPixmap: Pixmap;	(* border of the window *)
+    borderPixel: CARD32;	(* border pixel value *)
+    bitGravity: INT;		(* one of bit gravity values *)
+    winGravity: INT;		(* one of the window gravity values *)
+    backingStore: INT;		(* NotUseful, WhenMapped, Always *)
+    backingPlanes: CARD32;	(* planes to be preseved if possible *)
+    backingPixel: CARD32;	(* value to use in restoring planes *)
+    saveUnder: BOOL;		(* should bits under be saved? (popups) *)
+    eventMask: SET32;		(* set of events that should be saved *)
+    doNotPropagateMask: SET32;	(* set of events that should not propagate *)
+    overrideRedirect: BOOL;	(* boolean value for override-redirect *)
+    colormap: Colormap;		(* color map to be associated with window *)
+    cursor: Cursor;		(* cursor to be displayed (or None) *)
+END;
+
+XWindowAttributesPtr = POINTER TO XWindowAttributes;
+XWindowAttributes = RECORD
+    x, y: INT;			(* location of window *)
+    width, height: INT;		(* width and height of window *)
+    borderWidth: INT;		(* border width of window *)
+    depth: INT;          	(* depth of window *)
+    visual: VisualPtr;		(* the associated visual structure *)
+    root: Window;        	(* root of screen containing window *)
+    class: INT;			(* InputOutput, InputOnly*)
+    bitGravity: INT;		(* one of bit gravity values *)
+    winGravity: INT;		(* one of the window gravity values *)
+    backingStore: INT;		(* NotUseful, WhenMapped, Always *)
+    backingPlanes: CARD32;	(* planes to be preserved if possible *)
+    backingPixel: CARD32;	(* value to be used when restoring planes *)
+    saveUnder: BOOL;		(* boolean, should bits under be saved? *)
+    colormap: Colormap;		(* color map to be associated with window *)
+    mapInstalled: BOOL;		(* boolean, is color map currently installed*)
+    mapState: INT;		(* IsUnmapped, IsUnviewable, IsViewable *)
+    allEventMasks: SET32;	(* set of events all people have interest in*)
+    yourEventMask: SET32;	(* my event mask *)
+    doNotPropagateMask: SET32;  (* set of events that should not propagate *)
+    overrideRedirect: BOOL;	(* boolean value for override-redirect *)
+    screen: ScreenPtr;		(* back pointer to correct screen *)
+END;
+
+(*
+ * Data structure for host setting; getting routines.
+ *
+ *)
+
+XHostAddressPtr = POINTER TO XHostAddress;
+XHostAddress = RECORD
+	family: INT;		(* for example FamilyInternet *)
+	length: INT;		(* length of address, in bytes *)
+	address: ADDRESS;	(* pointer to where to find the bytes *)
+END;
+
+(*
+ * Data structure for "image" data, used by image manipulation routines.
+ *)
+XImagePtr = POINTER TO XImage;
+XImage = RECORD
+    width, height: INT;		(* size of image *)
+    xoffset: INT;		(* number of pixels offset in X direction *)
+    format: INT;		(* XYBitmap, XYPixmap, ZPixmap *)
+    data: ADDRESS;		(* pointer to image data *)
+    byteOrder: INT;		(* data byte order, LSBFirst, MSBFirst *)
+    bitmapUnit: INT;		(* quant. of scanline 8, 16, 32 *)
+    bitmapBitOrder: INT;	(* LSBFirst, MSBFirst *)
+    bitmapPad: INT;		(* 8, 16, 32 either XY or ZPixmap *)
+    depth: INT;			(* depth of image *)
+    bytesPerLine: INT;		(* accelarator to next line *)
+    bitsPerPixel: INT;		(* bits per pixel (ZPixmap) *)
+    redMask: CARD32;		(* bits in z arrangment *)
+    greenMask: CARD32;
+    blueMask: CARD32;
+    obdata: XPointer;		(* hook for the object routines to hang on *)
+    f: RECORD			(* image manipulation routines *)
+    	createImage: PROCEDURE(
+		DisplayPtr,	(* display *)
+		VisualPtr, 	(* visual *)
+		CARD,		(* depth *)
+		INT,		(* format *)
+		INT,		(* offset *)
+		ADDRESS,	(* data *)
+		CARD,		(* width *)
+		CARD,		(* height *)
+		INT,		(* bitmapPad *)
+		INT		(* bytesPerLine *)): XImagePtr;
+	destroyImage: PROCEDURE(XImagePtr): INT;
+	getPixel: PROCEDURE(XImagePtr, INT, INT): CARD32;
+	putPixel: PROCEDURE(XImagePtr, INT, INT, CARD32);
+	subImage: PROCEDURE(XImagePtr, INT, INT, CARD, CARD): XImagePtr;
+	addPixel: PROCEDURE(XImagePtr, INT32);
+    END;
+END;
+
+(*
+ * Data structure for XReconfigureWindow
+ *)
+XWindowChangesPtr = POINTER TO XWindowChanges;
+XWindowChanges = RECORD
+    x, y: INT;
+    width, height: INT;
+    borderWidth: INT;
+    sibling: Window;
+    stackMode: INT;
+END;
+
+(*
+ * Data structure used by color operations
+ *)
+XColorPtr = POINTER TO XColor;
+XColor = RECORD
+	pixel: CARD32;
+	red, green, blue: CARD16;
+	flags: CARD8;  (* doRed, doGreen, doBlue *)
+	pad: CARD8;
+END;
+
+(*
+ * Data structures for graphics operations.  On most machines, these are
+ * congruent with the wire protocol structures, so reformatting the data
+ * can be avoided on these architectures.
+ *)
+XSegmentPtr = POINTER TO XSegment;
+XSegment = RECORD
+    x1, y1, x2, y2: INT16;
+END;
+
+XPointPtr = POINTER TO XPoint;
+XPoint = RECORD
+    x, y: INT16;
+END;
+
+XRectanglePtr = POINTER TO XRectangle;
+XRectangle = RECORD
+    x, y: INT16;
+    width, height: CARD16;
+END;
+
+XArcPtr = POINTER TO XArc;
+XArc = RECORD
+    x, y: INT16;
+    width, height: CARD16;
+    angle1, angle2: INT16;
+END;
+
+
+(* Data structure for XChangeKeyboardControl *)
+
+XKeyboardControlPtr = POINTER TO XKeyboardControl;
+XKeyboardControl = RECORD
+        keyClickPercent: INT;
+        bellPercent: INT;
+        bellPitch: INT;
+        bellDuration: INT;
+        led: INT;
+        ledMode: INT;
+        key: INT;
+        autoRepeatMode: INT;   (* On, Off, Default *)
+END;
+
+(* Data structure for XGetKeyboardControl *)
+
+XKeyboardStatePtr = POINTER TO XKeyboardState;
+XKeyboardState = RECORD
+        keyClickPercent: INT;
+	bellPercent: INT;
+	bellPitch, bellDuration: CARD;
+	ledMask: CARD32;
+	globalAutoRepeat: INT;
+	autoRepeats: ARRAY[0..31] OF CHAR;
+END;
+
+(* Data structure for XGetMotionEvents.  *)
+
+XTimeCoordPtr = POINTER TO XTimeCoord;
+XTimeCoord = RECORD
+        time: Time;
+	x, y: INT16;
+END;
+
+(* Data structure for X{Set,Get}ModifierMapping *)
+
+XModifierKeymapPtr = POINTER TO XModifierKeymap;
+XModifierKeymap = RECORD
+ 	maxKeypermod: INT;	(* The server's max # of keys per modifier *)
+ 	modifiermap: KeyCodePtr;	(* An 8 by maxKeypermod array of modifiers *)
+END;
+
+
+TYPE XPrivatePtr = ADDRESS;
+TYPE XrmHashBucketRecPtr = ADDRESS;
+
+(*
+ * Display datatype maintaining display specific data.
+ * The contents of this structure are implementation dependent.
+ * A Display should be treated as opaque by application code.
+ *)
+
+Display = RECORD
+	extData: XExtDataPtr;	(* hook for extension to hang data *)
+	private1: XPrivatePtr;
+	fd: INT;		(* Network socket. *)
+	private2: INT;
+	protoMajorVersion: INT;	(* major version of server's X protocol *)
+	protoMinorVersion: INT;	(* minor version of servers X protocol *)
+	vendor: StringPtr;	(* vendor of the server hardware *)
+        private3: XID;
+	private4: XID;
+	private5: XID;
+	private6: INT;
+	resourceAlloc: PROCEDURE(	(* allocator function *)
+		DisplayPtr
+	): XID;
+	byteOrder: INT;		(* screen byte order, LSBFirst, MSBFirst *)
+	bitmapUnit: INT;	(* padding and data requirements *)
+	bitmapPad: INT;		(* padding requirements on bitmaps *)
+	bitmapBitOrder: INT;	(* LeastSignificant or MostSignificant *)
+	nformats: INT;		(* number of pixmap formats in list *)
+	pixmapFormat: ScreenFormatPtr;	(* pixmap format list *)
+	private8: INT;
+	release: INT;		(* release of the server *)
+	private9, private10: XPrivatePtr;
+	qlen: INT;		(* Length of input event queue *)
+	lastRequestRead: CARD32; (* seq number of last event read *)
+	request: CARD32;	(* sequence number of last request. *)
+	private11: XPointer;
+	private12: XPointer;
+	private13: XPointer;
+	private14: XPointer;
+	maxRequestSize: CARD; 	(* maximum number 32 bit words in request*)
+	db: XrmHashBucketRecPtr;
+	private15: PROCEDURE(
+		DisplayPtr
+	): INT;
+	displayName: StringPtr;	(* "host:display" string used on this connect*)
+	defaultScreen: INT;	(* default screen for operations *)
+	nscreens: INT;		(* number of screens on this server*)
+	screens: POINTER TO ARRAY[0..Many] OF Screen;	(* pointer to list of screens *)
+	motionBuffer: CARD32;	(* size of motion buffer *)
+	private16: CARD32;
+	minKeycode: INT;	(* minimum defined keycode *)
+	maxKeycode: INT;	(* maximum defined keycode *)
+	private17: XPointer;
+	private18: XPointer;
+	private19: INT;
+	xdefaults: StringPtr;	(* contents of defaults from server *)
+	(* there is more to this structure, but it is private to Xlib *)
+END;
+
+(*
+ * Definitions of specific events.
+ *)
+XKeyEventPtr = POINTER TO XKeyEvent;
+XKeyEvent = RECORD
+	type: INT;		(* of event *)
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	window: Window;	        (* "event" window it is reported relative to *)
+	root: Window;	        (* root window that the event occured on *)
+	subwindow: Window;	(* child window *)
+	time: Time;		(* milliseconds *)
+	x, y: INT;		(* pointer x, y coordinates in event window *)
+	xRoot, yRoot: INT;	(* coordinates relative to root *)
+	state: CARD;		(* key or button mask *)
+	keycode: CARD;		(* detail *)
+	sameScreen: BOOL;	(* same screen flag *)
+END;
+XKeyPressedEvent = XKeyEvent;
+XKeyPressedEventPtr = XKeyEventPtr;
+XKeyReleasedEvent = XKeyEvent;
+XKeyReleasedEventPtr = XKeyEventPtr;
+
+XButtonEventPtr = POINTER TO XButtonEvent;
+XButtonEvent = RECORD
+	type: INT;		(* of event *)
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	window: Window;	        (* "event" window it is reported relative to *)
+	root: Window;	        (* root window that the event occured on *)
+	subwindow: Window;	(* child window *)
+	time: Time;		(* milliseconds *)
+	x, y: INT;		(* pointer x, y coordinates in event window *)
+	xRoot, yRoot: INT;	(* coordinates relative to root *)
+	state: CARD;		(* key or button mask *)
+	button: CARD;		(* detail *)
+	sameScreen: BOOL;	(* same screen flag *)
+END;
+XButtonPressedEvent = XButtonEvent;
+XButtonReleasedEvent = XButtonEvent;
+
+XMotionEventPtr = POINTER TO XMotionEvent;
+XMotionEvent = RECORD
+	type: INT;		(* of event *)
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	window: Window;	        (* "event" window reported relative to *)
+	root: Window;	        (* root window that the event occured on *)
+	subwindow: Window;	(* child window *)
+	time: Time;		(* milliseconds *)
+	x, y: INT;		(* pointer x, y coordinates in event window *)
+	xRoot, yRoot: INT;	(* coordinates relative to root *)
+	state: CARD;		(* key or button mask *)
+	isHint: CHAR;		(* detail *)
+	sameScreen: BOOL;	(* same screen flag *)
+END;
+XPointerMovedEvent = XMotionEvent;
+
+XCrossingEventPtr = POINTER TO XCrossingEvent;
+XCrossingEvent = RECORD
+	type: INT;		(* of event *)
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	window: Window;	        (* "event" window reported relative to *)
+	root: Window;	        (* root window that the event occured on *)
+	subwindow: Window;	(* child window *)
+	time: Time;		(* milliseconds *)
+	x, y: INT;		(* pointer x, y coordinates in event window *)
+	xRoot, yRoot: INT;	(* coordinates relative to root *)
+	mode: INT;		(* NotifyNormal, NotifyGrab, NotifyUngrab *)
+	detail: INT;
+	(*
+	 * NotifyAncestor, NotifyVirtual, NotifyInferior,
+	 * NotifyNonlinear,NotifyNonlinearVirtual
+	 *)
+	sameScreen: BOOL;	(* same screen flag *)
+	focus: BOOL;		(* boolean focus *)
+	state: CARD;		(* key or button mask *)
+END;
+XEnterWindowEvent = XCrossingEvent;
+XLeaveWindowEvent = XCrossingEvent;
+
+XFocusChangeEventPtr = POINTER TO XFocusChangeEvent;
+XFocusChangeEvent = RECORD
+	type: INT;		(* FocusIn or FocusOut *)
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	window: Window;		(* window of event *)
+	mode: INT;		(* NotifyNormal, NotifyGrab, NotifyUngrab *)
+	detail: INT;
+	(*
+	 * NotifyAncestor, NotifyVirtual, NotifyInferior,
+	 * NotifyNonlinear,NotifyNonlinearVirtual, NotifyPointer,
+	 * NotifyPointerRoot, NotifyDetailNone
+	 *)
+END;
+XFocusInEvent = XFocusChangeEvent;
+XFocusOutEvent = XFocusChangeEvent;
+
+(* generated on EnterWindow and FocusIn  when KeyMapState selected *)
+XKeymapEventPtr = POINTER TO XKeymapEvent;
+XKeymapEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	window: Window;
+	keyVector: ARRAY[0..31] OF CHAR;
+END;
+
+XExposeEventPtr = POINTER TO XExposeEvent;
+XExposeEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	window: Window;
+	x, y: INT;
+	width, height: INT;
+	count: INT;		(* if non-zero, at least this many more *)
+END;
+
+XGraphicsExposeEventPtr = POINTER TO XGraphicsExposeEvent;
+XGraphicsExposeEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	drawable: Drawable;
+	x, y: INT;
+	width, height: INT;
+	count: INT;		(* if non-zero, at least this many more *)
+	majorCode: INT;		(* core is CopyArea or CopyPlane *)
+	minorCode: INT;		(* not defined in the core *)
+END;
+
+XNoExposeEventPtr = POINTER TO XNoExposeEvent;
+XNoExposeEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	drawable: Drawable;
+	majorCode: INT;		(* core is CopyArea or CopyPlane *)
+	minorCode: INT;		(* not defined in the core *)
+END;
+
+XVisibilityEventPtr = POINTER TO XVisibilityEvent;
+XVisibilityEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	window: Window;
+	state: INT;		(* Visibility state *)
+END;
+
+XCreateWindowEventPtr = POINTER TO XCreateWindowEvent;
+XCreateWindowEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	parent: Window;		(* parent of the window *)
+	window: Window;		(* window id of window created *)
+	x, y: INT;		(* window location *)
+	width, height: INT;	(* size of window *)
+	borderWidth: INT;	(* border width *)
+	overrideRedirect: BOOL;	(* creation should be overridden *)
+END;
+
+XDestroyWindowEventPtr = POINTER TO XDestroyWindowEvent;
+XDestroyWindowEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	event: Window;
+	window: Window;
+END;
+
+XUnmapEventPtr = POINTER TO XUnmapEvent;
+XUnmapEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	event: Window;
+	window: Window;
+	fromConfigure: BOOL;
+END;
+
+XMapEventPtr = POINTER TO XMapEvent;
+XMapEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	event: Window;
+	window: Window;
+	overrideRedirect: BOOL;	(* boolean, is override set... *)
+END;
+
+XMapRequestEventPtr = POINTER TO XMapRequestEvent;
+XMapRequestEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	parent: Window;
+	window: Window;
+END;
+
+XReparentEventPtr = POINTER TO XReparentEvent;
+XReparentEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	event: Window;
+	window: Window;
+	parent: Window;
+	x, y: INT;
+	overrideRedirect: BOOL;
+END;
+
+XConfigureEventPtr = POINTER TO XConfigureEvent;
+XConfigureEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	event: Window;
+	window: Window;
+	x, y: INT;
+	width, height: INT;
+	borderWidth: INT;
+	above: Window;
+	overrideRedirect: BOOL;
+END;
+
+XGravityEventPtr = POINTER TO XGravityEvent;
+XGravityEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	event: Window;
+	window: Window;
+	x, y: INT;
+END;
+
+XResizeRequestEventPtr = POINTER TO XResizeRequestEvent;
+XResizeRequestEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	window: Window;
+	width, height: INT;
+END;
+
+XConfigureRequestEventPtr = POINTER TO XConfigureRequestEvent;
+XConfigureRequestEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	parent: Window;
+	window: Window;
+	x, y: INT;
+	width, height: INT;
+	borderWidth: INT;
+	above: Window;
+	detail: INT;		(* Above, Below, TopIf, BottomIf, Opposite *)
+	valueMask: CARD32;
+END;
+
+XCirculateEventPtr = POINTER TO XCirculateEvent;
+XCirculateEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	event: Window;
+	window: Window;
+	place: INT;		(* PlaceOnTop, PlaceOnBottom *)
+END;
+
+XCirculateRequestEventPtr = POINTER TO XCirculateRequestEvent;
+XCirculateRequestEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	parent: Window;
+	window: Window;
+	place: INT;		(* PlaceOnTop, PlaceOnBottom *)
+END;
+
+XPropertyEventPtr = POINTER TO XPropertyEvent;
+XPropertyEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	window: Window;
+	atom: Atom;
+	time: Time;
+	state: INT;		(* NewValue, Deleted *)
+END;
+
+XSelectionClearEventPtr = POINTER TO XSelectionClearEvent;
+XSelectionClearEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	window: Window;
+	selection: Atom;
+	time: Time;
+END;
+
+XSelectionRequestEventPtr = POINTER TO XSelectionRequestEvent;
+XSelectionRequestEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	owner: Window;
+	requestor: Window;
+	selection: Atom;
+	target: Atom;
+	property: Atom;
+	time: Time;
+END;
+
+XSelectionEventPtr = POINTER TO XSelectionEvent;
+XSelectionEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	requestor: Window;
+	selection: Atom;
+	target: Atom;
+	property: Atom;		(* ATOM or None *)
+	time: Time;
+END;
+
+XColormapEventPtr = POINTER TO XColormapEvent;
+XColormapEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	window: Window;
+	colormap: Colormap;	(* COLORMAP or None *)
+	new: BOOL;
+	state: INT;		(* ColormapInstalled, ColormapUninstalled *)
+END;
+
+XClientMessageEventPtr = POINTER TO XClientMessageEvent;
+XClientMessageEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	window: Window;
+	messageType: Atom;
+	format: INT;
+        data: RECORD CASE :INTEGER OF
+	  0:	b: ARRAY[0..19] OF CHAR;
+	 |1:	s: ARRAY[0..9] OF INT16;
+	 |2:	l: ARRAY[0..4] OF INT32;
+	END; END;
+END;
+
+XMappingEventPtr = POINTER TO XMappingEvent;
+XMappingEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	window: Window;		(* unused *)
+	request: INT;		(* one of MappingModifier, MappingKeyboard,
+				   MappingPointer *)
+	firstKeycode: INT;	(* first keycode *)
+	count: INT;		(* defines range of change w. firstKeycode*)
+END;
+
+XErrorEventPtr = POINTER TO XErrorEvent;
+XErrorEvent = RECORD
+	type: INT;
+	display: DisplayPtr;	(* Display the event was read from *)
+	resourceid: XID;	(* resource id *)
+	serial: CARD32;		(* serial number of failed request *)
+	errorCode: CARD8;	(* error code of failed request *)
+	requestCode: CARD8;	(* Major op-code of failed request *)
+	minorCode: CARD8;	(* Minor op-code of failed request *)
+END;
+
+XAnyEventPtr = POINTER TO XAnyEvent;
+XAnyEvent = RECORD
+	type: INT;
+	serial: CARD32;		(* # of last request processed by server *)
+	sendEvent: BOOL;	(* true if this came from a SendEvent request *)
+	display: DisplayPtr;	(* Display the event was read from *)
+	window: Window;		(* window on which event was requested in event mask *)
+END;
+
+(*
+ * this union is defined so Xlib can always use the same sized
+ * event structure internally, to avoid memory fragmentation.
+ *)
+XEventPtr = POINTER TO XEvent;
+XEvent = RECORD
+ CASE :INTEGER OF
+   0:	type: INT;		(* must not be changed; first element *)
+  |1:	xany: XAnyEvent;
+  |2:	xkey: XKeyEvent;
+  |3:	xbutton: XButtonEvent;
+  |4:	xmotion: XMotionEvent;
+  |5:	xcrossing: XCrossingEvent;
+  |6:	xfocus: XFocusChangeEvent;
+  |7:	xexpose: XExposeEvent;
+  |8:	xgraphicsexpose: XGraphicsExposeEvent;
+  |9:	xnoexpose: XNoExposeEvent;
+  |10:	xvisibility: XVisibilityEvent;
+  |11:	xcreatewindow: XCreateWindowEvent;
+  |12:	xdestroywindow: XDestroyWindowEvent;
+  |13:	xunmap: XUnmapEvent;
+  |14:	xmap: XMapEvent;
+  |15:	xmaprequest: XMapRequestEvent;
+  |16:	xreparent: XReparentEvent;
+  |17:	xconfigure: XConfigureEvent;
+  |18:	xgravity: XGravityEvent;
+  |19:	xresizerequest: XResizeRequestEvent;
+  |20:	xconfigurerequest: XConfigureRequestEvent;
+  |21:	xcirculate: XCirculateEvent;
+  |22:	xcirculaterequest: XCirculateRequestEvent;
+  |23:	xproperty: XPropertyEvent;
+  |24:	xselectionclear: XSelectionClearEvent;
+  |25:	xselectionrequest: XSelectionRequestEvent;
+  |26:	xselection: XSelectionEvent;
+  |27:	xcolormap: XColormapEvent;
+  |28:	xclient: XClientMessageEvent;
+  |29:	xmapping: XMappingEvent;
+  |30:	xerror: XErrorEvent;
+  |31:	xkeymap: XKeymapEvent;
+  |32:	pad: ARRAY[0..23] OF INT32;
+ END;
+END;
+
+(*
+ * per character font metric information.
+ *)
+XCharStructPtr = POINTER TO XCharStruct;
+XCharStruct = RECORD
+    lbearing: INT16;	(* origin to left edge of raster *)
+    rbearing: INT16; 	(* origin to right edge of raster *)
+    width: INT16;	(* advance to next char's origin *)
+    ascent: INT16;	(* baseline to top edge of raster *)
+    descent: INT16;	(* baseline to bottom edge of raster *)
+    attributes: CARD16;	(* per char flags (not predefined) *)
+END;
+
+(*
+ * To allow arbitrary information with fonts, there are additional properties
+ * returned.
+ *)
+XFontPropPtr = POINTER TO XFontProp;
+XFontProp = RECORD
+    name: Atom;
+    card32: CARD32;
+END;
+
+XFontStructPtr = POINTER TO XFontStruct;
+XFontStruct = RECORD
+    extData: XExtDataPtr;	(* hook for extension to hang data *)
+    fid: Font;            	(* Font id for this font *)
+    direction: CARD;		(* hint about direction the font is painted *)
+    minCharOrByte2: CARD;	(* first character *)
+    maxCharOrByte2: CARD;	(* last character *)
+    minByte1: CARD;		(* first row that exists *)
+    maxByte1: CARD;		(* last row that exists *)
+    allCharsExist: BOOL;	(* flag if all characters have non-zero size*)
+    defaultChar: CARD;		(* char to print for undefined character *)
+    nProperties: INT;   	(* how many properties there are *)
+    properties: XFontPropPtr;	(* pointer to array of additional properties*)
+    minBounds: XCharStruct;	(* minimum bounds over all existing char*)
+    maxBounds: XCharStruct;	(* maximum bounds over all existing char*)
+    perChar: XCharStructPtr;	(* firstChar to lastChar information *)
+    ascent: INT; 		(* log. extent above baseline for spacing *)
+    descent: INT;		(* log. descent below baseline for spacing *)
+END;
+
+(*
+ * PolyText routines take these as arguments.
+ *)
+XTextItemPtr = POINTER TO XTextItem;
+XTextItem = RECORD
+    chars: StringPtr;		(* pointer to string *)
+    nchars: INT;		(* number of characters *)
+    delta: INT;			(* delta between strings *)
+    font: Font;			(* font to print it in, None don't change *)
+END;
+
+XChar2bPtr = POINTER TO XChar2b;
+XChar2b = RECORD		(* normal 16 bit characters are two bytes *)
+    byte1: CHAR;
+    byte2: CHAR;
+END;
+
+XTextItem16Ptr = POINTER TO XTextItem16;
+XTextItem16 = RECORD
+    chars: XChar2bPtr;		(* two byte characters *)
+    nchars: INT;		(* number of characters *)
+    delta: INT;			(* delta between strings *)
+    font: Font;			(* font to print it in, None don't change *)
+END;
+
+
+XEDataObjectPtr = POINTER TO XEDataObject;
+XEDataObject = RECORD
+	CASE :INTEGER OF
+	0:	display: DisplayPtr;
+	|1:	gc: GC;
+	|2:	visual: VisualPtr;
+	|3:	screen: ScreenPtr;
+	|4:	pixmapFormat: ScreenFormatPtr;
+	|5:	font: XFontStructPtr;
+	END;
+END;
+
+XFontSetExtentsPtr = POINTER TO XFontSetExtents;
+XFontSetExtents = RECORD
+    maxInkExtent: XRectangle;
+    maxLogicalExtent: XRectangle;
+END;
+
+XmbTextItemPtr = POINTER TO XmbTextItem;
+XmbTextItem = RECORD
+    chars: StringPtr;
+    nchars: INT;
+    delta: INT;
+    fontSet: XFontSet;
+END;
+
+XwcTextItemPtr = POINTER TO XwcTextItem;
+XwcTextItem = RECORD
+    chars: wcharTPtr;
+    nchars: INT;
+    delta: INT;
+    fontSet: XFontSet;
+END;
+
+XOMCharSetListPtr = POINTER TO XOMCharSetList;
+XOMCharSetList = RECORD
+    charsetCount: INT;
+    charsetList: StringPtrPtr;
+END;
+
+XOrientation = (
+    XOMOrientationLTRTTB,
+    XOMOrientationRTLTTB,
+    XOMOrientationTTBLTR,
+    XOMOrientationTTBRTL,
+    XOMOrientationContext
+);
+XOrientationPtr = POINTER TO XOrientation;
+
+XOMOrientationPtr = POINTER TO XOMOrientation;
+XOMOrientation = RECORD
+    numOrientation: INT;
+    orientation: XOrientationPtr;	(* Input Text description *)
+END;
+
+XOMFontInfoPtr = POINTER TO XOMFontInfo;
+XOMFontInfo = RECORD
+    numFont: INT;
+    fontStructList: POINTER TO XFontStructPtr;
+    fontNameList: StringPtrPtr;
+END;
+
+XIMProc = PROCEDURE(
+    XIM,
+    XPointer,
+    XPointer
+);
+
+XICProc = PROCEDURE(
+    XIC,
+    XPointer,
+    XPointer
+): BOOL;
+
+XIDProc = PROCEDURE(
+    DisplayPtr,
+    XPointer,
+    XPointer
+);
+
+XIMStyle = CARD32;
+
+XIMStylesPtr = POINTER TO XIMStyles;
+XIMStyles = RECORD
+    countStyles: CARD16;
+    supportedStyles: XIMStylesPtr;
+END;
+
+CONST
+ XIMPreeditArea =	0001H;
+ XIMPreeditCallbacks =	0002H;
+ XIMPreeditPosition =	0004H;
+ XIMPreeditNothing= 	0008H;
+ XIMPreeditNone =	0010H;
+ XIMStatusArea =	0100H;
+ XIMStatusCallbacks =	0200H;
+ XIMStatusNothing =	0400H;
+ XIMStatusNone =	0800H;
+
+CONST
+ XBufferOverflow =	-1;
+ XLookupNone =		1;
+ XLookupChars =		2;
+ XLookupKeySym =	3;
+ XLookupBoth =		4;
+
+TYPE
+XVaNestedList = XPointer;
+
+XIMCallbackPtr = POINTER TO XIMCallback;
+XIMCallback = RECORD
+    clientData: XPointer;
+    callback: XIMProc;
+END;
+
+XICCallbackPtr = POINTER TO XICCallback;
+XICCallback = RECORD
+    clientData: XPointer;
+    callback: XICProc;
+END;
+
+XIMFeedback = SET32;
+XIMFeedbackPtr = POINTER TO XIMFeedback;
+
+CONST
+ XIMReverse =		SET32{0};
+ XIMUnderline =		SET32{1};
+ XIMHighlight =		SET32{2};
+ XIMPrimary =	 	SET32{5};
+ XIMSecondary =		SET32{6};
+ XIMTertiary =	 	SET32{7};
+ XIMVisibleToForward = 	SET32{8};
+ XIMVisibleToBackword = SET32{9};
+ XIMVisibleToCenter =	SET32{10};
+
+TYPE
+XIMTextPtr = POINTER TO XIMText;
+XIMText = RECORD
+    length: CARD16;
+    feedback: XIMFeedbackPtr;
+    encodingIsWchar: BOOL;
+    string: RECORD CASE :INTEGER OF
+	 0:  multiByte: StringPtr;
+	|1:  wideChar: wcharTPtr;
+    END; END;
+END;
+
+TYPE	XIMPreeditState = SET32;
+
+CONST
+ XIMPreeditUnKnown =	SET32{};
+ XIMPreeditEnable =	SET32{0};
+ XIMPreeditDisable =	SET32{1};
+
+TYPE
+XIMPreeditStateNotifyCallbackStructPtr = POINTER TO XIMPreeditStateNotifyCallbackStruct;
+XIMPreeditStateNotifyCallbackStruct = RECORD
+    state: XIMPreeditState;
+END;
+
+TYPE	XIMResetState = SET32;
+
+CONST
+ XIMInitialState =	SET32{0};
+ XIMPreserveState =	SET32{1};
+
+TYPE
+XIMStringConversionFeedback = CARD32;
+XIMStringConversionFeedbackPtr = POINTER TO XIMStringConversionFeedback;
+
+CONST
+ XIMStringConversionLeftEdge =		00000001H;
+ XIMStringConversionRightEdge =		00000002H;
+ XIMStringConversionTopEdge =		00000004H;
+ XIMStringConversionBottomEdge =	00000008H;
+ XIMStringConversionConcealed =		00000010H;
+ XIMStringConversionWrapped =		00000020H;
+
+TYPE
+XIMStringConversionTextPtr = POINTER TO XIMStringConversionText;
+XIMStringConversionText = RECORD
+    length: CARD16;
+    feedback: XIMStringConversionFeedbackPtr;
+    encodingIsWchar: BOOL;
+    string: RECORD CASE :INTEGER OF
+	0:  mbs: StringPtr;
+	|1: wcs: wcharTPtr;
+    END; END;
+END;
+
+TYPE
+ XIMStringConversionPosition = CARD16;
+ XIMStringConversionType = CARD16;
+
+CONST
+ XIMStringConversionBuffer	=	0001H;
+ XIMStringConversionLine	=	0002H;
+ XIMStringConversionWord	=	0003H;
+ XIMStringConversionChar	=	0004H;
+
+TYPE XIMStringConversionOperation = CARD16;
+
+CONST
+ XIMStringConversionSubstitution	= 0001H;
+ XIMStringConversionRetrival		= 0002H;
+
+TYPE
+XIMCaretDirection = (
+    XIMForwardChar, XIMBackwardChar,
+    XIMForwardWord, XIMBackwardWord,
+    XIMCaretUp, XIMCaretDown,
+    XIMNextLine, XIMPreviousLine,
+    XIMLineStart, XIMLineEnd,
+    XIMAbsolutePosition,
+    XIMDontChange
+);
+
+XIMStringConversionCallbackStructPtr = POINTER TO XIMStringConversionCallbackStruct;
+XIMStringConversionCallbackStruct = RECORD
+    position: XIMStringConversionPosition;
+    direction: XIMCaretDirection;
+    operation: XIMStringConversionOperation;
+    factor: CARD16;
+    text: XIMStringConversionTextPtr;
+END;
+
+XIMPreeditDrawCallbackStructPtr = POINTER TO XIMPreeditDrawCallbackStruct;
+XIMPreeditDrawCallbackStruct = RECORD
+    caret: INT;		(* Cursor offset within pre-edit string *)
+    chgFirst: INT;	(* Starting change position *)
+    chgLength: INT;	(* Length of the change in character count *)
+    text: XIMTextPtr;
+END;
+
+XIMCaretStyle = (
+    XIMIsInvisible,	(* Disable caret feedback *)
+    XIMIsPrimary,	(* UI defined caret feedback *)
+    XIMIsSecondary	(* UI defined caret feedback *)
+);
+
+XIMPreeditCaretCallbackStructPtr = POINTER TO XIMPreeditCaretCallbackStruct;
+XIMPreeditCaretCallbackStruct = RECORD
+    position: INT;		 (* Caret offset within pre-edit string *)
+    direction: XIMCaretDirection; (* Caret moves direction *)
+    style: XIMCaretStyle;	 (* Feedback of the caret *)
+END;
+
+XIMStatusDataType = (
+    XIMTextType,
+    XIMBitmapType
+);
+XIMStatusDataTypePtr = POINTER TO XIMStatusDataType;
+
+XIMStatusDrawCallbackStruct = RECORD
+    type: XIMStatusDataType;
+    data: RECORD CASE :INTEGER OF
+	0:  text: XIMTextPtr;
+	|1: bitmap: Pixmap;
+    END; END;
+END;
+
+XIMHotKeyTriggerPtr = POINTER TO XIMHotKeyTrigger;
+XIMHotKeyTrigger = RECORD
+    keysym: KeySym;
+    modifier: INT;
+    modifierMask: SET32;
+END;
+
+XIMHotKeyTriggersPtr = POINTER TO XIMHotKeyTriggers;
+XIMHotKeyTriggers = RECORD
+    numHotKey: INT;
+    key: XIMHotKeyTriggerPtr;
+END;
+
+TYPE	XIMHotKeyState = CARD32	;
+
+
+CONST
+ XIMHotKeyStateON =	0001H;
+ XIMHotKeyStateOFF =	0002H;
+
+TYPE
+XIMValuesListPtr = POINTER TO XIMValuesList;
+XIMValuesList = RECORD
+    countValues: CARD16;
+    supportedValues: StringPtrPtr;
+END;
+
+(* extern INT Xdebug; *)
+(* VAR Xdebug: INT; *)
+
+
+PROCEDURE XLoadQueryFont(
+    display: DisplayPtr;
+    name: StringPtr
+): XFontStructPtr;
+
+PROCEDURE XQueryFont(
+    display: DisplayPtr;
+    fontID: XID
+): XFontStructPtr;
+
+
+PROCEDURE XGetMotionEvents(
+    display: DisplayPtr;
+    w: Window;
+    start: Time;
+    stop: Time;
+    VAR nevents: INT
+): XTimeCoordPtr;
+
+PROCEDURE XDeleteModifiermapEntry(
+    modmap: XModifierKeymapPtr;
+    keycodeEntry: KeyCode;
+    modifier: INT
+): XModifierKeymapPtr;
+
+PROCEDURE XGetModifierMapping(
+    display: DisplayPtr
+): XModifierKeymapPtr;
+
+PROCEDURE XInsertModifiermapEntry(
+    modmap: XModifierKeymapPtr;
+    keycodeEntry: KeyCode;
+    modifier: INT
+): XModifierKeymapPtr;
+
+PROCEDURE XNewModifiermap(
+    maxKeysPerMod: INT
+): XModifierKeymapPtr;
+
+PROCEDURE XCreateImage(
+    display: DisplayPtr;
+    visual: VisualPtr;
+    depth: CARD;
+    format: INT;
+    offset: INT;
+    data: StringPtr;
+    width: CARD;
+    height: CARD;
+    bitmapPad: INT;
+    bytesPerLine: INT
+): XImagePtr;
+PROCEDURE XInitImage(
+    image: XImagePtr
+): Status;
+PROCEDURE XGetImage(
+    display: DisplayPtr;
+    d: Drawable;
+    x: INT;
+    y: INT;
+    width: CARD;
+    height: CARD;
+    planeMask: CARD32;
+    format: INT
+): XImagePtr;
+PROCEDURE XGetSubImage(
+    display: DisplayPtr;
+    d: Drawable;
+    x: INT;
+    y: INT;
+    width: CARD;
+    height: CARD;
+    planeMask: CARD32;
+    format: INT;
+    destImage: XImagePtr;
+    destX: INT;
+    destY: INT
+): XImagePtr;
+
+(*
+ * X function declarations.
+ *)
+PROCEDURE XOpenDisplay(
+    displayName: StringPtr
+): DisplayPtr;
+
+PROCEDURE XrmInitialize(
+);
+
+PROCEDURE XFetchBytes(
+    display: DisplayPtr;
+    VAR nbytes: INT
+): StringPtr;
+PROCEDURE XFetchBuffer(
+    display: DisplayPtr;
+    VAR nbytes: INT;
+    buffer: INT
+): StringPtr;
+PROCEDURE XGetAtomName(
+    display: DisplayPtr;
+    atom: Atom
+): StringPtr;
+PROCEDURE XGetAtomNames(
+    dpy: DisplayPtr;
+    atoms: AtomPtr;
+    count: INT;
+    VAR names: StringPtr
+): Status;
+PROCEDURE XGetDefault(
+    display: DisplayPtr;
+    program: StringPtr;
+    option: StringPtr
+): StringPtr;
+PROCEDURE XDisplayName(
+    string: StringPtr
+): StringPtr;
+PROCEDURE XKeysymToString(
+    keysym: KeySym
+): StringPtr;
+
+PROCEDURE XSynchronize(
+    display: DisplayPtr;
+    onoff: BOOL
+): INTPtr;
+
+PROCEDURE XSetAfterFunction(
+    display: DisplayPtr
+): INTPtr;
+
+PROCEDURE XInternAtom(
+    display: DisplayPtr;
+    atomName: StringPtr;
+    onlyIfExists: BOOL
+): Atom;
+PROCEDURE XInternAtoms(
+    dpy: DisplayPtr;
+    names: StringPtrPtr;
+    count: INT;
+    onlyIfExists: BOOL;
+    VAR atoms: Atom
+): Status;
+PROCEDURE XCopyColormapAndFree(
+    display: DisplayPtr;
+    colormap: Colormap
+): Colormap;
+
+PROCEDURE XCreateColormap (display: DisplayPtr; w: Window; visual: VisualPtr; alloc: INT) : Colormap;
+
+PROCEDURE XCreatePixmapCursor(
+    display: DisplayPtr;
+    source: Pixmap;
+    mask: Pixmap;
+    foregroundColor: XColorPtr;
+    backgroundColor: XColorPtr;
+    x: CARD;
+    y: CARD
+): Cursor;
+PROCEDURE XCreateGlyphCursor(
+    display: DisplayPtr;
+    sourceFont: Font;
+    maskFont: Font;
+    sourceCHAR: CARD;
+    maskCHAR: CARD;
+    foregroundColor: XColorPtr;
+    backgroundColor: XColorPtr
+): Cursor;
+PROCEDURE XCreateFontCursor(
+    display: DisplayPtr;
+    shape: CARD
+): Cursor;
+PROCEDURE XLoadFont(
+    display: DisplayPtr;
+    name: StringPtr
+): Font;
+PROCEDURE XCreateGC(
+    display: DisplayPtr;
+    d: Drawable;
+    valuemask: SET32;
+    values: XGCValuesPtr
+): GC;
+PROCEDURE XGContextFromGC(
+    gc: GC
+): GContext;
+PROCEDURE XFlushGC(
+    display: DisplayPtr;
+    gc: GC
+);
+PROCEDURE XCreatePixmap(
+    display: DisplayPtr;
+    d: Drawable;
+    width: CARD;
+    height: CARD;
+    depth: CARD
+): Pixmap;
+PROCEDURE XCreateBitmapFromData(
+    display: DisplayPtr;
+    d: Drawable;
+    data: StringPtr;
+    width: CARD;
+    height: CARD
+): Pixmap;
+PROCEDURE XCreatePixmapFromBitmapData(
+    display: DisplayPtr;
+    d: Drawable;
+    data: StringPtr;
+    width: CARD;
+    height: CARD;
+    fg: CARD32;
+    bg: CARD32;
+    depth: CARD
+): Pixmap;
+PROCEDURE XCreateSimpleWindow(
+    display: DisplayPtr;
+    parent: Window;
+    x: INT;
+    y: INT;
+    width: CARD;
+    height: CARD;
+    borderWidth: CARD;
+    border: CARD32;
+    background: CARD32
+): Window;
+PROCEDURE XGetSelectionOwner(
+    display: DisplayPtr;
+    selection: Atom
+): Window;
+PROCEDURE XCreateWindow(
+    display: DisplayPtr;
+    parent: Window;
+    x: INT;
+    y: INT;
+    width: CARD;
+    height: CARD;
+    borderWidth: CARD;
+    depth: INT;
+    class: CARD;
+    visual: VisualPtr;
+    valuemask: SET32;
+    attributes: XSetWindowAttributesPtr
+): Window;
+PROCEDURE XListInstalledColormaps(
+    display: DisplayPtr;
+    w: Window;
+    VAR num: INT
+): ColormapPtr;
+PROCEDURE XListFonts(
+    display: DisplayPtr;
+    pattern: StringPtr;
+    maxnames: INT;
+    VAR actualCount: INT
+): StringPtrPtr;
+PROCEDURE XListFontsWithInfo(
+    display: DisplayPtr;
+    pattern: StringPtr;
+    maxnames: INT;
+    VAR count: INT;
+    VAR info: XFontStructPtr
+): StringPtrPtr;
+PROCEDURE XGetFontPath(
+    display: DisplayPtr;
+    VAR npaths: INT
+): StringPtrPtr;
+PROCEDURE XListExtensions(
+    display: DisplayPtr;
+    VAR nextensions: INT
+): StringPtrPtr;
+PROCEDURE XListProperties(
+    display: DisplayPtr;
+    w: Window;
+    VAR numProp: INT
+): AtomPtr;
+PROCEDURE XListHosts(
+    display: DisplayPtr;
+    VAR nhosts: INT;
+    VAR state: BOOL
+): XHostAddressPtr;
+PROCEDURE XKeycodeToKeysym(
+    display: DisplayPtr;
+    keycode: KeyCode;
+    index: INT
+): KeySym;
+PROCEDURE XLookupKeysym(
+    keyEvent: XKeyEventPtr;
+    index: INT
+): KeySym;
+PROCEDURE XGetKeyboardMapping(
+    display: DisplayPtr;
+    firstKeycode: KeyCode;
+    keycodeCount: INT;
+    VAR keysymsPerKeycode: INT
+): KeySymPtr;
+PROCEDURE XStringToKeysym(
+    string: StringPtr
+): KeySym;
+PROCEDURE XMaxRequestSize(
+    display: DisplayPtr
+): INT32;
+PROCEDURE XExtendedMaxRequestSize(
+    display: DisplayPtr
+): INT32;
+PROCEDURE XResourceManagerString(
+    display: DisplayPtr
+): StringPtr;
+PROCEDURE XScreenResourceString(
+    screen: ScreenPtr
+): StringPtr;
+PROCEDURE XDisplayMotionBufferSize(
+    display: DisplayPtr
+): CARD32;
+PROCEDURE XVisualIDFromVisual(
+    visual: VisualPtr
+): VisualID;
+
+(* multithread routines *)
+
+PROCEDURE XInitThreads(
+): Status;
+
+PROCEDURE XLockDisplay(
+    display: DisplayPtr
+);
+
+PROCEDURE XUnlockDisplay(
+    display: DisplayPtr
+);
+
+(* routines for dealing with extensions *)
+
+PROCEDURE XInitExtension(
+    display: DisplayPtr;
+    name: StringPtr
+): XExtCodesPtr;
+
+PROCEDURE XAddExtension(
+    display: DisplayPtr
+): XExtCodesPtr;
+PROCEDURE XFindOnExtensionList(
+    structure: ADDRESS;
+    number: INT
+): XExtDataPtr;
+PROCEDURE XEHeadOfExtensionList(
+    object: XEDataObject
+): ADDRESS;
+
+(* these are routines for which there are also macros *)
+PROCEDURE XRootWindow(
+    display: DisplayPtr;
+    screenNumber: INT
+): Window;
+PROCEDURE XDefaultRootWindow(
+    display: DisplayPtr
+): Window;
+PROCEDURE XRootWindowOfScreen(
+    screen: ScreenPtr
+): Window;
+PROCEDURE XDefaultVisual(
+    display: DisplayPtr;
+    screenNumber: INT
+): VisualPtr;
+PROCEDURE XDefaultVisualOfScreen(
+    screen: ScreenPtr
+): VisualPtr;
+PROCEDURE XDefaultGC(
+    display: DisplayPtr;
+    screenNumber: INT
+): GC;
+PROCEDURE XDefaultGCOfScreen(
+    screen: ScreenPtr
+): GC;
+PROCEDURE XBlackPixel(
+    display: DisplayPtr;
+    screenNumber: INT
+): CARD32;
+PROCEDURE XWhitePixel(
+    display: DisplayPtr;
+    screenNumber: INT
+): CARD32;
+PROCEDURE XAllPlanes(
+): CARD32;
+PROCEDURE XBlackPixelOfScreen(
+    screen: ScreenPtr
+): CARD32;
+PROCEDURE XWhitePixelOfScreen(
+    screen: ScreenPtr
+): CARD32;
+PROCEDURE XNextRequest(
+    display: DisplayPtr
+): CARD32;
+PROCEDURE XLastKnownRequestProcessed(
+    display: DisplayPtr
+): CARD32;
+PROCEDURE XServerVendor(
+    display: DisplayPtr
+): StringPtr;
+PROCEDURE XDisplayString(
+    display: DisplayPtr
+): StringPtr;
+PROCEDURE XDefaultColormap(
+    display: DisplayPtr;
+    screenNumber: INT
+): Colormap;
+PROCEDURE XDefaultColormapOfScreen(
+    screen: ScreenPtr
+): Colormap;
+PROCEDURE XDisplayOfScreen(
+    screen: ScreenPtr
+): DisplayPtr;
+PROCEDURE XScreenOfDisplay(
+    display: DisplayPtr;
+    screenNumber: INT
+): ScreenPtr;
+PROCEDURE XDefaultScreenOfDisplay(
+    display: DisplayPtr
+): ScreenPtr;
+PROCEDURE XEventMaskOfScreen(
+    screen: ScreenPtr
+): SET32;
+
+PROCEDURE XScreenNumberOfScreen(
+    screen: ScreenPtr
+): INT;
+
+TYPE XErrorHandler = PROCEDURE(	    (* WARNING; this type not in Xlib spec *)
+    DisplayPtr,		(* display *)
+    XErrorEventPtr	(* errorEvent *)
+): INT;
+
+TYPE XIOErrorHandler = PROCEDURE(	(* WARNING; this type not in Xlib spec *)
+    DisplayPtr
+): INT;
+
+PROCEDURE XSetErrorHandler (
+    handler: XErrorHandler
+): XErrorHandler;
+
+
+PROCEDURE XSetIOErrorHandler (
+    handler: XIOErrorHandler
+): XIOErrorHandler;
+
+
+PROCEDURE XListPixmapFormats(
+    display: DisplayPtr;
+    VAR count: INT
+): XPixmapFormatValuesPtr;
+PROCEDURE XListDepths(
+    display: DisplayPtr;
+    screenNumber: INT;
+    VAR count: INT
+): INTPtr;
+
+(* ICCCM routines for things that don't require special include files; *)
+(* other declarations are given in Xutil.h                             *)
+PROCEDURE XReconfigureWMWindow(
+    display: DisplayPtr;
+    w: Window;
+    screenNumber: INT;
+    mask: CARD;
+    changes: XWindowChangesPtr
+): Status;
+
+PROCEDURE XGetWMProtocols(
+    display: DisplayPtr;
+    w: Window;
+    VAR protocols: AtomPtr;
+    VAR count: INT
+): Status;
+PROCEDURE XSetWMProtocols(
+    display: DisplayPtr;
+    w: Window;
+    protocols: AtomPtr;
+    count: INT
+): Status;
+PROCEDURE XIconifyWindow(
+    display: DisplayPtr;
+    w: Window;
+    screenNumber: INT
+): Status;
+PROCEDURE XWithdrawWindow(
+    display: DisplayPtr;
+    w: Window;
+    screenNumber: INT
+): Status;
+PROCEDURE XGetCommand(
+    display: DisplayPtr;
+    w: Window;
+    VAR argv: StringPtrPtr;
+    VAR argc: INT
+): Status;
+PROCEDURE XGetWMColormapWindows(
+    display: DisplayPtr;
+    w: Window;
+    VAR windows: WindowPtr;
+    VAR count: INT
+): Status;
+PROCEDURE XSetWMColormapWindows(
+    display: DisplayPtr;
+    w: Window;
+    colormapWindows: WindowPtr;
+    count: INT
+): Status;
+PROCEDURE XFreeStringList(
+    list: StringPtrPtr
+);
+PROCEDURE XSetTransientForHint(
+    display: DisplayPtr;
+    w: Window;
+    propWindow: Window
+): INT;
+
+(* The following are given in alphabetical order *)
+
+PROCEDURE XActivateScreenSaver(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XAddHost(
+    display: DisplayPtr;
+    host: XHostAddressPtr
+): INT;
+
+PROCEDURE XAddHosts(
+    display: DisplayPtr;
+    hosts: XHostAddressPtr;
+    numHosts: INT
+): INT;
+
+PROCEDURE XAddToExtensionList(
+    structure: ADDRESS;
+    extData: XExtDataPtr
+): INT;
+
+PROCEDURE XAddToSaveSet(
+    display: DisplayPtr;
+    w: Window
+): INT;
+
+PROCEDURE XAllocColor(
+    display: DisplayPtr;
+    colormap: Colormap;
+    screenInOut: XColorPtr
+): Status;
+
+PROCEDURE XAllocColorCells(
+    display: DisplayPtr;
+    colormap: Colormap;
+    contig: BOOL;
+    VAR planeMasks: CARD32;
+    nplanes: CARD;
+    VAR pixels: CARD32;
+    npixels: CARD
+): Status;
+
+PROCEDURE XAllocColorPlanes(
+    display: DisplayPtr;
+    colormap: Colormap;
+    contig: BOOL;
+    VAR pixels: CARD32;
+    ncolors: INT;
+    nreds: INT;
+    ngreens: INT;
+    nblues: INT;
+    VAR rmask: CARD32;
+    VAR gmask: CARD32;
+    VAR bmask: CARD32
+): Status;
+
+PROCEDURE XAllocNamedColor(
+    display: DisplayPtr;
+    colormap: Colormap;
+    colorName: StringPtr;
+    VAR screenDef: XColor;
+    VAR exactDef: XColor
+): Status;
+
+PROCEDURE XAllowEvents(
+    display: DisplayPtr;
+    eventMode: INT;
+    time: Time
+): INT;
+
+PROCEDURE XAutoRepeatOff(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XAutoRepeatOn(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XBell(
+    display: DisplayPtr;
+    percent: INT
+): INT;
+
+PROCEDURE XBitmapBitOrder(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XBitmapPad(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XBitmapUnit(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XCellsOfScreen(
+    screen: ScreenPtr
+): INT;
+
+PROCEDURE XChangeActivePointerGrab(
+    display: DisplayPtr;
+    eventMask: SET32;
+    cursor: Cursor;
+    time: Time
+): INT;
+
+PROCEDURE XChangeGC(
+    display: DisplayPtr;
+    gc: GC;
+    valuemask: SET32;
+    values: XGCValuesPtr
+): INT;
+
+PROCEDURE XChangeKeyboardControl(
+    display: DisplayPtr;
+    valueMask: SET32;
+    values: XKeyboardControlPtr
+): INT;
+
+PROCEDURE XChangeKeyboardMapping(
+    display: DisplayPtr;
+    firstKeycode: INT;
+    keysymsPerKeycode: INT;
+    keysyms: KeySymPtr;
+    numCodes: INT
+): INT;
+
+PROCEDURE XChangePointerControl(
+    display: DisplayPtr;
+    doAccel: BOOL;
+    doThreshold: BOOL;
+    accelNumerator: INT;
+    accelDenominator: INT;
+    threshold: INT
+): INT;
+
+PROCEDURE XChangeProperty(
+    display: DisplayPtr;
+    w: Window;
+    property: Atom;
+    type: Atom;
+    format: INT;
+    mode: INT;
+    data: ADDRESS;
+    nelements: INT
+): INT;
+
+PROCEDURE XChangeSaveSet(
+    display: DisplayPtr;
+    w: Window;
+    changeMode: INT
+): INT;
+
+PROCEDURE XChangeWindowAttributes(
+    display: DisplayPtr;
+    w: Window;
+    valuemask: SET32;
+    attributes: XSetWindowAttributesPtr
+): INT;
+
+TYPE
+ PredicateProc = PROCEDURE(	(* Only in Modula-2; inlined in Xlib.h *)
+ 	DisplayPtr,
+ 	XEventPtr,
+ 	XPointer
+ ): BOOL;
+
+PROCEDURE XCheckIfEvent(
+    display: DisplayPtr;
+    VAR event: XEvent;
+    predicate: PredicateProc;
+    arg: XPointer
+): BOOL;
+
+PROCEDURE XCheckMaskEvent(
+    display: DisplayPtr;
+    eventMask: SET32;
+    VAR event: XEvent
+): BOOL;
+
+PROCEDURE XCheckTypedEvent(
+    display: DisplayPtr;
+    eventType: INT;
+    VAR event: XEvent
+): BOOL;
+
+PROCEDURE XCheckTypedWindowEvent(
+    display: DisplayPtr;
+    w: Window;
+    eventType: INT;
+    VAR event: XEvent
+): BOOL;
+
+PROCEDURE XCheckWindowEvent(
+    display: DisplayPtr;
+    w: Window;
+    eventMask: SET32;
+    VAR event: XEvent
+): BOOL;
+
+PROCEDURE XCirculateSubwindows(
+    display: DisplayPtr;
+    w: Window;
+    direction: INT
+): INT;
+
+PROCEDURE XCirculateSubwindowsDown(
+    display: DisplayPtr;
+    w: Window
+): INT;
+
+PROCEDURE XCirculateSubwindowsUp(
+    display: DisplayPtr;
+    w: Window
+): INT;
+
+PROCEDURE XClearArea(
+    display: DisplayPtr;
+    w: Window;
+    x: INT;
+    y: INT;
+    width: CARD;
+    height: CARD;
+    exposures: BOOL
+): INT;
+
+PROCEDURE XClearWindow(
+    display: DisplayPtr;
+    w: Window
+): INT;
+
+PROCEDURE XCloseDisplay(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XConfigureWindow(
+    display: DisplayPtr;
+    w: Window;
+    valueMask: SET32;
+    values: XWindowChangesPtr
+): INT;
+
+PROCEDURE XConnectionNumber(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XConvertSelection(
+    display: DisplayPtr;
+    selection: Atom;
+    target: Atom ;
+    property: Atom;
+    requestor: Window;
+    time: Time
+): INT;
+
+PROCEDURE XCopyArea(
+    display: DisplayPtr;
+    src: Drawable;
+    dest: Drawable;
+    gc: GC;
+    srcX: INT;
+    srcY: INT;
+    width: CARD;
+    height: CARD;
+    destX: INT;
+    destY: INT
+): INT;
+
+PROCEDURE XCopyGC(
+    display: DisplayPtr;
+    src: GC;
+    valuemask: SET32;
+    dest: GC
+): INT;
+
+PROCEDURE XCopyPlane(
+    display: DisplayPtr;
+    src: Drawable;
+    dest: Drawable;
+    gc: GC;
+    srcX: INT;
+    srcY: INT;
+    width: CARD;
+    height: CARD;
+    destX: INT;
+    destY: INT;
+    plane: CARD32
+): INT;
+
+PROCEDURE XDefaultDepth(
+    display: DisplayPtr;
+    screenNumber: INT
+): INT;
+
+PROCEDURE XDefaultDepthOfScreen(
+    screen: ScreenPtr
+): INT;
+
+PROCEDURE XDefaultScreen(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XDefineCursor(
+    display: DisplayPtr;
+    w: Window;
+    cursor: Cursor
+): INT;
+
+PROCEDURE XDeleteProperty(
+    display: DisplayPtr;
+    w: Window;
+    property: Atom
+): INT;
+
+PROCEDURE XDestroyWindow(
+    display: DisplayPtr;
+    w: Window
+): INT;
+
+PROCEDURE XDestroySubwindows(
+    display: DisplayPtr;
+    w: Window
+): INT;
+
+PROCEDURE XDoesBackingStore(
+    screen: ScreenPtr
+): INT;
+
+PROCEDURE XDoesSaveUnders(
+    screen: ScreenPtr
+): BOOL;
+
+PROCEDURE XDisableAccessControl(
+    display: DisplayPtr
+): INT;
+
+
+PROCEDURE XDisplayCells(
+    display: DisplayPtr;
+    screenNumber: INT
+): INT;
+
+PROCEDURE XDisplayHeight(
+    display: DisplayPtr;
+    screenNumber: INT
+): INT;
+
+PROCEDURE XDisplayHeightMM(
+    display: DisplayPtr;
+    screenNumber: INT
+): INT;
+
+PROCEDURE XDisplayKeycodes(
+    display: DisplayPtr;
+    VAR minKeycodes: INT;
+    VAR maxKeycodes: INT
+): INT;
+
+PROCEDURE XDisplayPlanes(
+    display: DisplayPtr;
+    screenNumber: INT
+): INT;
+
+PROCEDURE XDisplayWidth(
+    display: DisplayPtr;
+    screenNumber: INT
+): INT;
+
+PROCEDURE XDisplayWidthMM(
+    display: DisplayPtr;
+    screenNumber: INT
+): INT;
+
+PROCEDURE XDrawArc(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    x: INT;
+    y: INT;
+    width: CARD;
+    height: CARD;
+    angle1: INT;
+    angle2: INT
+): INT;
+
+PROCEDURE XDrawArcs(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    arcs: XArcPtr;
+    narcs: INT
+): INT;
+
+PROCEDURE XDrawImageString(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    x: INT;
+    y: INT;
+    VAR string: ARRAY OF CHAR
+): INT;
+
+PROCEDURE XDrawImageString16(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    x: INT;
+    y: INT;
+    string: XChar2bPtr;
+    nstring: INT
+): INT;
+
+PROCEDURE XDrawLine(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    x1: INT;
+    x2: INT;
+    y1: INT;
+    y2: INT
+): INT;
+
+PROCEDURE XDrawLines(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    points: XPointPtr;
+    npoints: INT;
+    mode: INT
+): INT;
+
+PROCEDURE XDrawPoint(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    x: INT;
+    y: INT
+): INT;
+
+PROCEDURE XDrawPoints(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    points: XPointPtr;
+    npoints: INT;
+    mode: INT
+): INT;
+
+PROCEDURE XDrawRectangle(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    x: INT;
+    y: INT;
+    width: CARD;
+    height: CARD
+): INT;
+
+PROCEDURE XDrawRectangles(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    rectangles: XRectanglePtr;
+    nrectangles: INT
+): INT;
+
+PROCEDURE XDrawSegments(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    segments: XSegmentPtr;
+    nsegments: INT
+): INT;
+
+PROCEDURE XDrawString(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    x: INT;
+    y: INT;
+    VAR string: ARRAY OF CHAR
+): INT;
+
+PROCEDURE XDrawString16(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    x: INT;
+    y: INT;
+    string: XChar2bPtr;
+    nstring: INT
+): INT;
+
+PROCEDURE XDrawText(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    x: INT;
+    y: INT;
+    items: XTextItemPtr;
+    nitems: INT
+): INT;
+
+PROCEDURE XDrawText16(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    x: INT;
+    y: INT;
+    items: XTextItem16Ptr;
+    nitems: INT
+): INT;
+
+PROCEDURE XEnableAccessControl(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XEventsQueued(
+    display: DisplayPtr;
+    mode: INT
+): INT;
+
+PROCEDURE XFetchName(
+    display: DisplayPtr;
+    w: Window;
+    VAR windowName: StringPtr
+): Status;
+
+PROCEDURE XFillArc(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    x: INT;
+    y: INT;
+    width: CARD;
+    height: CARD;
+    angle1: INT;
+    angle2: INT
+): INT;
+
+PROCEDURE XFillArcs(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    arcs: XArcPtr;
+    narcs: INT
+): INT;
+
+PROCEDURE XFillPolygon(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    points: XPointPtr;
+    npoints: INT;
+    shape: INT;
+    mode: INT
+): INT;
+
+PROCEDURE XFillRectangle(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    x: INT;
+    y: INT;
+    width: CARD;
+    height: CARD
+): INT;
+
+PROCEDURE XFillRectangles(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    rectangles: XRectanglePtr;
+    nrectangles: INT
+): INT;
+
+PROCEDURE XFlush(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XForceScreenSaver(
+    display: DisplayPtr;
+    mode: INT
+): INT;
+
+PROCEDURE XFree(
+    data: ADDRESS
+): INT;
+
+PROCEDURE XFreeColormap(
+    display: DisplayPtr;
+    colormap: Colormap
+): INT;
+
+PROCEDURE XFreeColors(
+    display: DisplayPtr;
+    colormap: Colormap;
+    pixels: CARD32Ptr;
+    npixels: INT;
+    planes: CARD32
+): INT;
+
+PROCEDURE XFreeCursor(
+    display: DisplayPtr;
+    cursor: Cursor
+): INT;
+
+PROCEDURE XFreeExtensionList(
+    list: StringPtrPtr
+): INT;
+
+PROCEDURE XFreeFont(
+    display: DisplayPtr;
+    fontStruct: XFontStructPtr
+): INT;
+
+PROCEDURE XFreeFontInfo(
+    names: StringPtrPtr;
+    freeInfo: XFontStructPtr;
+    actualCount: INT
+): INT;
+
+PROCEDURE XFreeFontNames(
+    list: StringPtrPtr
+): INT;
+
+PROCEDURE XFreeFontPath(
+    list: StringPtrPtr
+): INT;
+
+PROCEDURE XFreeGC(
+    display: DisplayPtr;
+    gc: GC
+): INT;
+
+PROCEDURE XFreeModifiermap(
+    modmap: XModifierKeymapPtr
+): INT;
+
+PROCEDURE XFreePixmap(
+    display: DisplayPtr;
+    pixmap: Pixmap
+): INT;
+
+PROCEDURE XGeometry(
+    display: DisplayPtr;
+    screen: INT;
+    position: StringPtr;
+    defaultPosition: StringPtr;
+    bwidth: CARD;
+    fwidth: CARD;
+    fheight: CARD;
+    xadder: INT;
+    yadder: INT;
+    VAR x: INT;
+    VAR y: INT;
+    VAR width: INT;
+    VAR height: INT
+): INT;
+
+PROCEDURE XGetErrorDatabaseText(
+    display: DisplayPtr;
+    name: StringPtr;
+    message: StringPtr;
+    defaultString: StringPtr;
+    VAR buffer: ARRAY OF CHAR
+): INT;
+
+PROCEDURE XGetErrorText(
+    display: DisplayPtr;
+    code: INT;
+    VAR buffer: ARRAY OF CHAR
+): INT;
+
+PROCEDURE XGetFontProperty(
+    fontStruct: XFontStructPtr;
+    atom: Atom;
+    VAR value: CARD32
+): BOOL;
+
+PROCEDURE XGetGCValues(
+    display: DisplayPtr;
+    gc: GC;
+    valuemask: CARD32;
+    VAR values: XGCValues
+): Status;
+
+PROCEDURE XGetGeometry(
+    display: DisplayPtr;
+    d: Drawable;
+    VAR root: Window;
+    VAR x: INT;
+    VAR y: INT;
+    VAR width: CARD;
+    VAR height: CARD;
+    VAR borderWidth: CARD;
+    VAR depth: CARD
+): Status;
+
+PROCEDURE XGetIconName(
+    display: DisplayPtr;
+    w: Window;
+    VAR iconName: StringPtr
+): Status;
+
+PROCEDURE XGetInputFocus(
+    display: DisplayPtr;
+    VAR focus: Window;
+    VAR revertTo: INT
+): INT;
+
+PROCEDURE XGetKeyboardControl(
+    display: DisplayPtr;
+    VAR values: XKeyboardState
+): INT;
+
+PROCEDURE XGetPointerControl(
+    display: DisplayPtr;
+    VAR accelNumerator: INT;
+    VAR accelDenominator: INT;
+    VAR threshold: INT
+): INT;
+
+PROCEDURE XGetPointerMapping(
+    display: DisplayPtr;
+    VAR map: CARD8;
+    nmap: INT
+): INT;
+
+PROCEDURE XGetScreenSaver(
+    display: DisplayPtr;
+    VAR timeout: INT;
+    VAR interval: INT;
+    VAR preferBlanking: INT;
+    VAR allowExposures: INT
+): INT;
+
+PROCEDURE XGetTransientForHint(
+    display: DisplayPtr;
+    w: Window;
+    VAR propWindow: Window
+): Status;
+
+PROCEDURE XGetWindowProperty(
+    display: DisplayPtr;
+    w: Window;
+    property: Atom;
+    longOffset: INT32;
+    longLength: INT32;
+    delete: BOOL;
+    reqType: Atom;
+    VAR actualType: Atom;
+    VAR actualFormat: INT;
+    VAR nitems: CARD32;
+    VAR bytesAfter: CARD32;
+    VAR prop: ADDRESS
+): INT;
+
+PROCEDURE XGetWindowAttributes(
+    display: DisplayPtr;
+    w: Window;
+    VAR windowAttributes: XWindowAttributes
+): Status;
+
+PROCEDURE XGrabButton(
+    display: DisplayPtr;
+    button: CARD;
+    modifiers: SET32;
+    grabWindow: Window;
+    ownerEvents: BOOL;
+    eventMask: SET32;
+    pointerMode: INT;
+    keyboardMode: INT;
+    confineTo: Window;
+    cursor: Cursor
+): INT;
+
+PROCEDURE XGrabKey(
+    display: DisplayPtr;
+    keycode: INT;
+    modifiers: SET32;
+    grabWindow: Window;
+    ownerEvents: BOOL;
+    pointerMode: INT;
+    keyboardMode: INT
+): INT;
+
+PROCEDURE XGrabKeyboard(
+    display: DisplayPtr;
+    grabWindow: Window;
+    ownerEvents: BOOL;
+    pointerMode: INT;
+    keyboardMode: INT;
+    time: Time
+): INT;
+
+PROCEDURE XGrabPointer(
+    display: DisplayPtr;
+    grabWindow: Window;
+    ownerEvents: BOOL;
+    eventMask: SET32;
+    pointerMode: INT;
+    keyboardMode: INT;
+    confineTo: Window;
+    cursor: Cursor;
+    time: Time
+): INT;
+
+PROCEDURE XGrabServer(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XHeightMMOfScreen(
+    screen: ScreenPtr
+): INT;
+
+PROCEDURE XHeightOfScreen(
+    screen: ScreenPtr
+): INT;
+
+PROCEDURE XIfEvent(
+    display: DisplayPtr;
+    VAR event: XEvent;
+    predicate: PredicateProc;
+    arg: XPointer
+): INT;
+
+PROCEDURE XImageByteOrder(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XInstallColormap(
+    display: DisplayPtr;
+    colormap: Colormap
+): INT;
+
+PROCEDURE XKeysymToKeycode(
+    display: DisplayPtr;
+    keysym: KeySym
+): KeyCode;
+
+PROCEDURE XKillClient(
+    display: DisplayPtr;
+    resource: XID
+): INT;
+
+PROCEDURE XLookupColor(
+    display: DisplayPtr;
+    colormap: Colormap;
+    colorName: StringPtr;
+    VAR exactDef: XColor;
+    VAR screenDef: XColor
+): Status;
+
+PROCEDURE XLowerWindow(
+    display: DisplayPtr;
+    w: Window
+): INT;
+
+PROCEDURE XMapRaised(
+    display: DisplayPtr;
+    w: Window
+): INT;
+
+PROCEDURE XMapSubwindows(
+    display: DisplayPtr;
+    w: Window
+): INT;
+
+PROCEDURE XMapWindow(
+    display: DisplayPtr;
+    w: Window
+): INT;
+
+PROCEDURE XMaskEvent(
+    display: DisplayPtr;
+    eventMask: SET32;
+    VAR event: XEvent
+): INT;
+
+PROCEDURE XMaxCmapsOfScreen(
+    screen: ScreenPtr
+): INT;
+
+PROCEDURE XMinCmapsOfScreen(
+    screen: ScreenPtr
+): INT;
+
+PROCEDURE XMoveResizeWindow(
+    display: DisplayPtr;
+    w: Window;
+    x: INT;
+    y: INT;
+    width: CARD;
+    height: CARD
+): INT;
+
+PROCEDURE XMoveWindow(
+    display: DisplayPtr;
+    w: Window;
+    x: INT;
+    y: INT
+): INT;
+
+PROCEDURE XNextEvent(
+    display: DisplayPtr;
+    VAR event: XEvent
+): INT;
+
+PROCEDURE XNoOp(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XParseColor(
+    display: DisplayPtr;
+    colormap: Colormap;
+    spec: StringPtr;
+    VAR exactDef: XColor
+): Status;
+
+PROCEDURE XParseGeometry(
+    parsestring: StringPtr;
+    VAR x: INT;
+    VAR y: INT;
+    VAR width: CARD;
+    VAR height: CARD
+): INT;
+
+PROCEDURE XPeekEvent(
+    display: DisplayPtr;
+    VAR event: XEvent
+): INT;
+
+PROCEDURE XPeekIfEvent(
+    display: DisplayPtr;
+    VAR event: XEvent;
+    predicate: PredicateProc;
+    arg: XPointer
+): INT;
+
+PROCEDURE XPending(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XPlanesOfScreen(
+    screen: ScreenPtr
+): INT;
+
+PROCEDURE XProtocolRevision(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XProtocolVersion(
+    display: DisplayPtr
+): INT;
+
+
+PROCEDURE XPutBackEvent(
+    display: DisplayPtr;
+    event: XEventPtr
+): INT;
+
+PROCEDURE XPutImage(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    image: XImagePtr;
+    srcX: INT;
+    srcY: INT;
+    destX: INT;
+    destY: INT;
+    width: CARD;
+    height: CARD
+): INT;
+
+PROCEDURE XQLength(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XQueryBestCursor(
+    display: DisplayPtr;
+    d: Drawable;
+    width: CARD;
+    height: CARD;
+    VAR widthReturn: CARD;
+    VAR heightReturn: CARD
+): Status;
+
+PROCEDURE XQueryBestSize(
+    display: DisplayPtr;
+    class: INT;
+    whichScreen: Drawable;
+    width: CARD;
+    height: CARD;
+    VAR widthReturn: CARD;
+    VAR heightReturn: CARD
+): Status;
+
+PROCEDURE XQueryBestStipple(
+    display: DisplayPtr;
+    whichScreen: Drawable;
+    width: CARD;
+    height: CARD;
+    VAR widthReturn: CARD;
+    VAR heightReturn: CARD
+): Status;
+
+PROCEDURE XQueryBestTile(
+    display: DisplayPtr;
+    whichScreen: Drawable;
+    width: CARD;
+    height: CARD;
+    VAR widthReturn: CARD;
+    VAR heightReturn: CARD
+): Status;
+
+PROCEDURE XQueryColor(
+    display: DisplayPtr;
+    colormap: Colormap;
+    defInOut: XColorPtr
+): INT;
+
+PROCEDURE XQueryColors(
+    display: DisplayPtr;
+    colormap: Colormap;
+    defsInOut: XColorPtr;
+    ncolors: INT
+): INT;
+
+PROCEDURE XQueryExtension(
+    display: DisplayPtr;
+    name: StringPtr;
+    VAR majorOpcode: INT;
+    VAR firstEvent: INT;
+    VAR firstError: INT
+): BOOL;
+
+PROCEDURE XQueryKeymap(
+    display: Display;
+    keysAdr: ADDRESS (* VAR keys: ARRAY[0..31] OF CHAR *)
+): INT;
+
+PROCEDURE XQueryPointer(
+    display: DisplayPtr;
+    w: Window;
+    VAR root: Window;
+    VAR child: Window;
+    VAR rootX: INT;
+    VAR rootY: INT;
+    VAR winX: INT;
+    VAR winY: INT;
+    VAR mask: CARD
+): BOOL;
+
+PROCEDURE XQueryTextExtents(
+    dialay: DisplayPtr;
+    fontID: XID;
+    VAR string: ARRAY OF CHAR;
+    VAR direction: INT;
+    VAR fontAscent: INT;
+    VAR fontDescent: INT;
+    VAR overall: XCharStruct
+): INT;
+
+PROCEDURE XQueryTextExtents16(
+    display: DisplayPtr;
+    fontID: XID;
+    string: XChar2bPtr;
+    nstring: INT;
+    VAR direction: INT;
+    VAR fontAscent: INT;
+    VAR fontDescent: INT;
+    VAR overall: XCharStruct
+): INT;
+
+PROCEDURE XQueryTree(
+    display: DisplayPtr;
+    w: Window;
+    VAR root: Window;
+    VAR parent: Window;
+    VAR children: WindowPtr;
+    VAR nchildren: CARD
+): Status;
+
+PROCEDURE XRaiseWindow(
+    display: DisplayPtr;
+    w: Window
+): INT;
+
+PROCEDURE XReadBitmapFile(
+    display: DisplayPtr;
+    d: Drawable ;
+    filename: StringPtr;
+    VAR width: CARD;
+    VAR height: CARD;
+    VAR bitmap: Pixmap;
+    VAR xHot: INT;
+    VAR yHot: INT
+): INT;
+
+PROCEDURE XReadBitmapFileData(
+    filename: StringPtr;
+    VAR width: CARD;
+    VAR height: CARD;
+    VAR data: ADDRESS;
+    VAR xHot: INT;
+    VAR yHot: INT
+): INT;
+
+PROCEDURE XRebindKeysym(
+    display: DisplayPtr;
+    keysym: KeySym;
+    list: KeySymPtr;
+    modCount: INT;
+    string: StringPtr;
+    bytesString: INT
+): INT;
+
+PROCEDURE XRecolorCursor(
+    display: DisplayPtr;
+    cursor: Cursor;
+    foregroundColor: XColorPtr;
+    backgroundColor: XColorPtr
+): INT;
+
+PROCEDURE XRefreshKeyboardMapping(
+    eventMap: XMappingEventPtr
+): INT;
+
+PROCEDURE XRemoveFromSaveSet(
+    display: DisplayPtr;
+    w: Window
+): INT;
+
+PROCEDURE XRemoveHost(
+    display: DisplayPtr;
+    host: XHostAddressPtr
+): INT;
+
+PROCEDURE XRemoveHosts(
+    display: DisplayPtr;
+    hosts: XHostAddressPtr;
+    numHosts: INT
+): INT;
+
+PROCEDURE XReparentWindow(
+    display: DisplayPtr;
+    w: Window;
+    parent: Window;
+    x: INT;
+    y: INT
+): INT;
+
+PROCEDURE XResetScreenSaver(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XResizeWindow(
+    display: DisplayPtr;
+    w: Window;
+    width: CARD;
+    height: CARD
+): INT;
+
+PROCEDURE XRestackWindows(
+    display: DisplayPtr;
+    windows: WindowPtr;
+    nwindows: INT
+): INT;
+
+PROCEDURE XRotateBuffers(
+    display: DisplayPtr;
+    rotate: INT
+): INT;
+
+PROCEDURE XRotateWindowProperties(
+    display: DisplayPtr;
+    w: Window;
+    properties: AtomPtr;
+    numProp: INT;
+    npositions: INT
+): INT;
+
+PROCEDURE XScreenCount(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XSelectInput(
+    display: DisplayPtr;
+    w: Window;
+    eventMask: SET32
+): INT;
+
+PROCEDURE XSendEvent(
+    display: DisplayPtr;
+    w: Window;
+    propagate: BOOL;
+    eventMask: SET32;
+    eventSend: XEventPtr
+): Status;
+
+PROCEDURE XSetAccessControl(
+    display: DisplayPtr;
+    mode: INT
+): INT;
+
+PROCEDURE XSetArcMode(
+    display: DisplayPtr;
+    gc: GC;
+    arcMode: INT
+): INT;
+
+PROCEDURE XSetBackground(
+    display: DisplayPtr;
+    gc: GC;
+    background: CARD32
+): INT;
+
+PROCEDURE XSetClipMask(
+    display: DisplayPtr;
+    gc: GC;
+    pixmap: Pixmap
+): INT;
+
+PROCEDURE XSetClipOrigin(
+    display: DisplayPtr;
+    gc: GC;
+    clipXOrigin: INT;
+    clipYOrigin: INT
+): INT;
+
+PROCEDURE XSetClipRectangles(
+    display: DisplayPtr;
+    gc: GC;
+    clipXOrigin: INT;
+    clipYOrigin: INT;
+    rectangles: XRectanglePtr;
+    n: INT;
+    ordering: INT
+): INT;
+
+PROCEDURE XSetCloseDownMode(
+    display: DisplayPtr;
+    closeMode: INT
+): INT;
+
+PROCEDURE XSetCommand(
+    display: DisplayPtr;
+    w: Window;
+    argv: StringPtrPtr;
+    argc: INT
+): INT;
+
+PROCEDURE XSetDashes(
+    display: DisplayPtr;
+    gc: GC;
+    dashOffset: INT;
+    dashList: StringPtr;
+    n: INT
+): INT;
+
+PROCEDURE XSetFillRule(
+    display: DisplayPtr;
+    gc: GC;
+    fillRule: INT
+): INT;
+
+PROCEDURE XSetFillStyle(
+    display: DisplayPtr;
+    gc: GC;
+    fillStyle: INT
+): INT;
+
+PROCEDURE XSetFont(
+    display: DisplayPtr;
+    gc: GC;
+    font: Font
+): INT;
+
+PROCEDURE XSetFontPath(
+    display: DisplayPtr;
+    directories: StringPtrPtr;
+    ndirs: INT
+): INT;
+
+PROCEDURE XSetForeground(
+    display: DisplayPtr;
+    gc: GC;
+    foreground: CARD32
+): INT;
+
+PROCEDURE XSetFunction(
+    display: DisplayPtr;
+    gc: GC;
+    function: INT
+): INT;
+
+PROCEDURE XSetGraphicsExposures(
+    display: DisplayPtr;
+    gc: GC;
+    graphicsExposures: BOOL
+): INT;
+
+PROCEDURE XSetIconName(
+    display: DisplayPtr;
+    w: Window;
+    iconName: StringPtr
+): INT;
+
+PROCEDURE XSetInputFocus(
+    display: DisplayPtr;
+    focus: Window;
+    revertTo: INT;
+    time: Time
+): INT;
+
+PROCEDURE XSetLineAttributes(
+    display: DisplayPtr;
+    gc: GC;
+    lineWidth: CARD;
+    lineStyle: INT;
+    capStyle: INT;
+    joinStyle: INT
+): INT;
+
+PROCEDURE XSetModifierMapping(
+    display: DisplayPtr;
+    modmap: XModifierKeymapPtr
+): INT;
+
+PROCEDURE XSetPlaneMask(
+    display: DisplayPtr;
+    gc: GC;
+    planeMask: CARD32
+): INT;
+
+PROCEDURE XSetPointerMapping(
+    display: DisplayPtr;
+    map: StringPtr;
+    nmap: INT
+): INT;
+
+PROCEDURE XSetScreenSaver(
+    display: DisplayPtr;
+    timeout: INT;
+    interval: INT;
+    preferBlanking: INT;
+    allowExposures: INT
+): INT;
+
+PROCEDURE XSetSelectionOwner(
+    display: DisplayPtr;
+    selection: Atom;
+    owner: Window;
+    time: Time
+): INT;
+
+PROCEDURE XSetState(
+    display: DisplayPtr;
+    gc: GC;
+    foreground: CARD32 ;
+    background: CARD32;
+    function: INT;
+    planeMask: CARD32
+): INT;
+
+PROCEDURE XSetStipple(
+    display: DisplayPtr;
+    gc: GC;
+    stipple: Pixmap
+): INT;
+
+PROCEDURE XSetSubwindowMode(
+    display: DisplayPtr;
+    gc: GC;
+    subwindowMode: INT
+): INT;
+
+PROCEDURE XSetTSOrigin(
+    display: DisplayPtr;
+    gc: GC;
+    tsXOrigin: INT;
+    tsYOrigin: INT
+): INT;
+
+PROCEDURE XSetTile(
+    display: DisplayPtr;
+    gc: GC;
+    tile: Pixmap
+): INT;
+
+PROCEDURE XSetWindowBackground(
+    display: DisplayPtr;
+    w: Window;
+    backgroundPixel: CARD32
+): INT;
+
+PROCEDURE XSetWindowBackgroundPixmap(
+    display: DisplayPtr;
+    w: Window;
+    backgroundPixmap: Pixmap
+): INT;
+
+PROCEDURE XSetWindowBorder(
+    display: DisplayPtr;
+    w: Window;
+    borderPixel: CARD32
+): INT;
+
+PROCEDURE XSetWindowBorderPixmap(
+    display: DisplayPtr;
+    w: Window;
+    borderPixmap: Pixmap
+): INT;
+
+PROCEDURE XSetWindowBorderWidth(
+    display: DisplayPtr;
+    w: Window;
+    width: CARD
+): INT;
+
+PROCEDURE XSetWindowColormap(
+    display: DisplayPtr;
+    w: Window;
+    colormap: Colormap
+): INT;
+
+PROCEDURE XStoreBuffer(
+    display: DisplayPtr;
+    bytes: StringPtr;
+    nbytes: INT;
+    buffer: INT
+): INT;
+
+PROCEDURE XStoreBytes(
+    display: DisplayPtr;
+    bytes: StringPtr;
+    nbytes: INT
+): INT;
+
+PROCEDURE XStoreColor(
+    display: DisplayPtr;
+    colormap: Colormap;
+    color: XColorPtr
+): INT;
+
+PROCEDURE XStoreColors(
+    display: DisplayPtr;
+    colormap: Colormap;
+    color: XColorPtr;
+    ncolors: INT
+): INT;
+
+PROCEDURE XStoreName(
+    display: DisplayPtr;
+    w: Window;
+    windowName: StringPtr
+): INT;
+
+PROCEDURE XStoreNamedColor(
+    display: DisplayPtr;
+    colormap: Colormap;
+    color: StringPtr;
+    pixel: CARD32;
+    flags: SET32
+): INT;
+
+PROCEDURE XSync(
+    display: DisplayPtr;
+    discard: BOOL
+): INT;
+
+PROCEDURE XTextExtents(
+    fontStruct: XFontStructPtr;
+    string: StringPtr;
+    nchars: INT;
+    VAR direction: INT;
+    VAR fontAscent: INT;
+    VAR fontDescent: INT;
+    VAR overall: XCharStruct
+): INT;
+
+PROCEDURE XTextExtents16(
+    fontStruct: XFontStructPtr;
+    string: XChar2bPtr;
+    nchars: INT;
+    VAR direction: INT;
+    VAR fontAscent: INT;
+    VAR fontDescent: INT;
+    VAR overall: XCharStruct
+): INT;
+
+PROCEDURE XTextWidth(
+    fontStruct: XFontStructPtr;
+    string: StringPtr;
+    count: INT
+): INT;
+
+PROCEDURE XTextWidth16(
+    fontStruct: XFontStructPtr;
+    string: XChar2bPtr;
+    count: INT
+): INT;
+
+PROCEDURE XTranslateCoordinates(
+    display: DisplayPtr;
+    srcW: Window;
+    destW: Window;
+    srcX: INT;
+    srcY: INT;
+    VAR destX: INT;
+    VAR destY: INT;
+    VAR child: Window
+): BOOL;
+
+PROCEDURE XUndefineCursor(
+    display: DisplayPtr;
+    w: Window
+): INT;
+
+PROCEDURE XUngrabButton(
+    display: DisplayPtr;
+    button: CARD;
+    modifiers: CARD;
+    grabWindow: Window
+): INT;
+
+PROCEDURE XUngrabKey(
+    display: DisplayPtr;
+    keycode: INT;
+    modifiers: CARD;
+    grabWindow: Window
+): INT;
+
+PROCEDURE XUngrabKeyboard(
+    display: DisplayPtr;
+    time: Time
+): INT;
+
+PROCEDURE XUngrabPointer(
+    display: DisplayPtr;
+    time: Time
+): INT;
+
+PROCEDURE XUngrabServer(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XUninstallColormap(
+    display: DisplayPtr;
+    colormap: Colormap
+): INT;
+
+PROCEDURE XUnloadFont(
+    display: DisplayPtr;
+    font: Font
+): INT;
+
+PROCEDURE XUnmapSubwindows(
+    display: DisplayPtr;
+    w: Window
+): INT;
+
+PROCEDURE XUnmapWindow(
+    display: DisplayPtr;
+    w: Window
+): INT;
+
+PROCEDURE XVendorRelease(
+    display: DisplayPtr
+): INT;
+
+PROCEDURE XWarpPointer(
+    display: DisplayPtr;
+    srcW: Window;
+    destW: Window;
+    srcX: INT;
+    srcY: INT;
+    srcWidth: CARD;
+    srcHeight: CARD;
+    destX: INT;
+    destY: INT
+): INT;
+
+PROCEDURE XWidthMMOfScreen(
+    screen: ScreenPtr
+): INT;
+
+PROCEDURE XWidthOfScreen(
+    screen: ScreenPtr
+): INT;
+
+PROCEDURE XWindowEvent(
+    display: DisplayPtr;
+    w: Window;
+    eventMask: SET32;
+    VAR event: XEvent
+): INT;
+
+PROCEDURE XWriteBitmapFile(
+    display: DisplayPtr;
+    filename: StringPtr;
+    bitmap: Pixmap;
+    width: CARD;
+    height: CARD;
+    xHot: INT;
+    yHot: INT
+): INT;
+
+PROCEDURE XSupportsLocale(
+): BOOL;
+
+PROCEDURE XSetLocaleModifiers(
+    modifierList: StringPtr
+): StringPtr;
+
+PROCEDURE XOpenOM(
+    display: DisplayPtr;
+    rdb: XrmHashBucketRecPtr;
+    resName: StringPtr;
+    resClass: StringPtr
+): XOM;
+
+PROCEDURE XCloseOM(
+    om: XOM
+): Status;
+
+PROCEDURE XSetOMValues(
+    om: XOM
+): StringPtr;
+
+PROCEDURE XGetOMValues(
+    om: XOM
+): StringPtr;
+
+PROCEDURE XDisplayOfOM(
+    om: XOM
+): DisplayPtr;
+
+PROCEDURE XLocaleOfOM(
+    om: XOM
+): StringPtr;
+
+PROCEDURE XCreateOC(
+    om: XOM
+): XOC;
+
+PROCEDURE XDestroyOC(
+    oc: XOC
+);
+
+PROCEDURE XOMOfOC(
+    oc: XOC
+): XOM;
+
+PROCEDURE XSetOCValues(
+    oc: XOC
+): StringPtr;
+
+PROCEDURE XGetOCValues(
+    oc: XOC
+): StringPtr;
+
+PROCEDURE XCreateFontSet(
+    display: DisplayPtr;
+    baseFontNameList: StringPtr;
+    VAR missingCharsetList: StringPtrPtr;
+    missingCharsetCount: INTPtr;
+    defString: StringPtrPtr
+): XFontSet;
+
+PROCEDURE XFreeFontSet(
+    display: DisplayPtr;
+    fontSet: XFontSet
+);
+
+PROCEDURE XFontsOfFontSet(
+    fontSet: XFontSet;
+    fontStructList: ADDRESS;
+    fontNameList: ADDRESS
+): INT;
+
+PROCEDURE XBaseFontNameListOfFontSet(
+    fontSet: XFontSet
+): StringPtr;
+
+PROCEDURE XLocaleOfFontSet(
+    fontSet: XFontSet
+): StringPtr;
+
+PROCEDURE XContextDependentDrawing(
+    fontSet: XFontSet
+): BOOL;
+
+PROCEDURE XDirectionalDependentDrawing(
+    fontSet: XFontSet
+): BOOL;
+
+PROCEDURE XContextualDrawing(
+    fontSet: XFontSet
+): BOOL;
+
+PROCEDURE XExtentsOfFontSet(
+    fontSet: XFontSet
+): XFontSetExtentsPtr;
+
+PROCEDURE XmbTextEscapement(
+    fontSet: XFontSet;
+    VAR text: ARRAY OF CHAR
+): INT;
+
+PROCEDURE XwcTextEscapement(
+    fontSet: XFontSet;
+    text: wcharTPtr;
+    length: INT
+): INT;
+
+PROCEDURE XmbTextExtents(
+    fontSet: XFontSet;
+    VAR text: ARRAY OF CHAR;
+    VAR overallInk: XRectangle;
+    VAR overallLogical: XRectangle
+): INT;
+
+PROCEDURE XwcTextExtents(
+    fontSet: XFontSet;
+    text: wcharTPtr;
+    numWchars: INT;
+    VAR overallInk: XRectangle;
+    VAR overallLogical: XRectangle
+): INT;
+
+PROCEDURE XmbTextPerCharExtents(
+    fontSet: XFontSet;
+    VAR text: ARRAY OF CHAR;
+    inkExtentsBuffer: XRectanglePtr;
+    logicalExtentsBuffer: XRectanglePtr;
+    bufferSize: INT;
+    numChars: INTPtr;
+    VAR overallInk: XRectangle;
+    VAR overallLogical: XRectangle
+): Status;
+
+PROCEDURE XwcTextPerCharExtents(
+    fontSet: XFontSet;
+    text: wcharTPtr;
+    numWchars: INT;
+    inkExtentsBuffer: XRectanglePtr;
+    logicalExtentsBuffer: XRectanglePtr;
+    bufferSize: INT;
+    numChars: INTPtr;
+    VAR overallInk: XRectangle;
+    VAR overallLogical: XRectangle
+): Status;
+
+PROCEDURE XmbDrawText(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    x: INT;
+    y: INT;
+    textItems: XmbTextItemPtr;
+    nitems: INT
+);
+
+PROCEDURE XwcDrawText(
+    display: DisplayPtr;
+    d: Drawable;
+    gc: GC;
+    x: INT;
+    y: INT;
+    textItems: XwcTextItemPtr;
+    nitems: INT
+);
+
+PROCEDURE XmbDrawString(
+    display: DisplayPtr;
+    d: Drawable;
+    fontSet: XFontSet;
+    gc: GC;
+    x: INT;
+    y: INT;
+    VAR text: ARRAY OF CHAR
+);
+
+PROCEDURE XwcDrawString(
+    display: DisplayPtr;
+    d: Drawable;
+    fontSet: XFontSet;
+    gc: GC;
+    x: INT;
+    y: INT;
+    text: wcharTPtr;
+    numWchars: INT
+);
+
+PROCEDURE XmbDrawImageString(
+    display: DisplayPtr;
+    d: Drawable;
+    fontSet: XFontSet;
+    gc: GC;
+    x: INT;
+    y: INT;
+    VAR text: ARRAY OF CHAR
+);
+
+PROCEDURE XwcDrawImageString(
+    display: DisplayPtr;
+    d: Drawable;
+    fontSet: XFontSet;
+    gc: GC;
+    x: INT;
+    y: INT;
+    text: wcharTPtr;
+    numWchars: INT
+);
+
+PROCEDURE XOpenIM(
+    dpy: DisplayPtr;
+    rdb: XrmHashBucketRecPtr;
+    resName: StringPtr;
+    resClass: StringPtr
+): XIM;
+
+PROCEDURE XCloseIM(
+    im: XIM
+): Status;
+
+PROCEDURE XGetIMValues(
+    im: XIM
+): StringPtr;
+
+PROCEDURE XDisplayOfIM(
+    im: XIM
+): DisplayPtr;
+
+PROCEDURE XLocaleOfIM(
+    im: XIM
+): StringPtr;
+
+PROCEDURE XCreateIC(
+): XIC;
+
+PROCEDURE XDestroyIC(
+    ic: XIC
+);
+
+PROCEDURE XSetICFocus(
+    ic: XIC
+);
+
+PROCEDURE XUnsetICFocus(
+    ic: XIC
+);
+
+PROCEDURE XwcResetIC(
+    ic: XIC
+): wcharTPtr;
+
+PROCEDURE XmbResetIC(
+    ic: XIC
+): StringPtr;
+
+PROCEDURE XSetICValues(
+    ic: XIC
+): StringPtr;
+
+PROCEDURE XGetICValues(
+    ic: XIC
+): StringPtr;
+
+PROCEDURE XIMOfIC(
+    ic: XIC
+): XIM;
+
+PROCEDURE XFilterEvent(
+    event: XEventPtr;
+    window: Window
+): BOOL;
+
+PROCEDURE XmbLookupString(
+    ic: XIC;
+    event: XKeyPressedEventPtr;
+    VAR buffer: ARRAY OF CHAR;
+    VAR keysym: KeySym;
+    VAR status: Status
+): INT;
+
+PROCEDURE XwcLookupString(
+    ic: XIC;
+    event: XKeyPressedEventPtr;
+    VAR buffer: wcharT;
+    wcharsBuffer: INT;
+    VAR keysym: KeySym;
+    VAR status: Status
+): INT;
+
+PROCEDURE XVaCreateNestedList(
+): XVaNestedList;
+
+(* internal connections for IMs *)
+
+PROCEDURE XRegisterIMInstantiateCallback(
+    dpy: DisplayPtr;
+    rdb: XrmHashBucketRecPtr;
+    resName: StringPtr;
+    resClass: StringPtr;
+    callback: XIDProc;
+    clientData: XPointer
+): BOOL;
+
+PROCEDURE XUnregisterIMInstantiateCallback(
+    dpy: DisplayPtr;
+    rdb: XrmHashBucketRecPtr;
+    resName: StringPtr;
+    resClass: StringPtr;
+    callback: XIDProc;
+    clientData: XPointer
+): BOOL;
+
+TYPE
+ XConnectionWatchProc = PROCEDURE(
+    DisplayPtr,	(* dpy *)
+    XPointer,	(* clientData *)
+    INT,	(* fd *)
+    BOOL,	(* opening *) (* open or close flag *)
+    XPointerPtr	(* watchData *) (* open sets; close uses *)
+);
+
+
+PROCEDURE XInternalConnectionNumbers(
+    dpy: DisplayPtr;
+    VAR fd: INTPtr;
+    VAR count: INT
+): Status;
+
+PROCEDURE XProcessInternalConnection(
+    dpy: DisplayPtr;
+    fd: INT
+);
+
+PROCEDURE XAddConnectionWatch(
+    dpy: DisplayPtr;
+    callback: XConnectionWatchProc;
+    clientData: XPointer
+): Status;
+
+PROCEDURE XRemoveConnectionWatch(
+    dpy: DisplayPtr;
+    callback: XConnectionWatchProc;
+    clientData: XPointer
+);
+
+
+END Xlib.
