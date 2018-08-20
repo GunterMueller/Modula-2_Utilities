@@ -1,3 +1,0 @@
-IMPLEMENTATION MODULE Xlib;
-
-END Xlib.

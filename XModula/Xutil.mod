@@ -1,3 +1,0 @@
-IMPLEMENTATION MODULE Xutil;
-
-END Xutil.

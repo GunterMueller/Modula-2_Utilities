@@ -1,2 +1,0 @@
-#export MOCKALINK=-lX11
-export MOCKALINK="-lpthread -L/usr/lib/i386-linux-gnu/ -lX11"
